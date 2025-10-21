@@ -1,13 +1,19 @@
 # data
+``` {r
+library(readxl)
+prof_2018_2019 <- read_excel("data/ignore/2018-2019 TSG Comparative FWS  (Pre-COVID) deidentified for BATES - clean.xlsx")
+View(prof_2018_2019)
+}```
 
-Place data file(s) in this folder. Add the dimensions (rows and columns).
 
-Then, include codebooks (variables, and their descriptions) for your data file(s)
-using the following format.
 
-## name of data file
+## Prof_2018_2019
 
-- `variable1`: Description of variable 1
-- `variable2`: Description of variable 2
-- `variable3`: Description of variable 3
+- `Bottom`: Lowest Score (for agency/ classroom)
+- `Top`: Highest Score (for agency/ classroom
+- `# Children`: Total # of children assessed
+- `Average` : Average Score of children (for agency/ classroom)
+- `# Below` :# of children below developmental expectations
+- `% Below` : % of children below developmental expectations
+
 - ...
