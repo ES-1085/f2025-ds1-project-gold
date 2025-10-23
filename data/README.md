@@ -1,9 +1,9 @@
 # data
-``` {r
+``` {r}
 library(readxl)
 prof_2018_2019 <- read_excel("data/ignore/2018-2019 TSG Comparative FWS  (Pre-COVID) deidentified for BATES - clean.xlsx")
 View(prof_2018_2019)
-}```
+```
 
 
 
