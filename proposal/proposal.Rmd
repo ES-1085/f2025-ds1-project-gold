@@ -1,6 +1,10 @@
 ---
 title: "Project proposal"
+<<<<<<< HEAD
 author: "GOLD Analysts"
+=======
+author: "Gold Analyst"
+>>>>>>> c2457869cf81a912294b0a375b0aafc6571c36a5
 output: github_document
 ---
 
@@ -21,6 +25,11 @@ Text goes here. Refer to the Markdown Quick Reference: Help -> Markdown Quick Re
 Text goes here. Place your data in the /data folder, and add dimensions and codebook to the README in that folder. Then print out the output of glimpse() or skim() of your data frame.
 
 ```{r}
+
+library(readxl)
+prof_2018_2019 <- read_excel("data/ignore/2018-2019 TSG Comparative FWS  (Pre-COVID) deidentified for BATES - clean.xlsx")
+View(prof_2018_2019)
+
 # Code goes here
 # Read in your data file
 # Print the output of glimpse() or skim()
