@@ -1,51 +1,68 @@
 ---
 title: "Project proposal"
-<<<<<<< HEAD
-author: "GOLD Analysts"
-=======
-author: "Gold Analyst"
->>>>>>> c2457869cf81a912294b0a375b0aafc6571c36a5
+author: "Gold Analysts - Mekkawy, Nissan, Razvan"
 output: github_document
 ---
 
 ```{r load-packages, message = FALSE}
 library(tidyverse)
 library(broom)
-## Add any additional packages you are using here
+library(readxl)
+library(dplyr)
+library(skimr)
 ```
 
-## 1. Introduction
+## 1. Intro 
 
-The introduction should introduce your general research question(s) and your data (where it came from, how it was collected, what are the cases, what are the variables, etc.).
+We are developing our research based on a database provided by Promise Early Education Programs: Early Head Start and Head Start. They focus on children’s developmental outcomes. 
 
-Text goes here. Refer to the Markdown Quick Reference: Help -> Markdown Quick Reference. 
+The data is collected using the Teaching Strategies Gold (TS GOLD) assessment, which analyzes growth towards Widely Held Expectations (WHE) for typically developing children at each stage. 
+
+This collection method categorizes children’s performance in every vital classification: Physical Examination, Language, Cognitive, Social-Emotional, Literacy and Mathematics.
+
+We plan on researching how COVID-19 impacted different groups of students. We will analyze these groups in two categories: based on their age or based on whether they have an Individualized Educational Program (IEP) or not.
 
 ## 2. Data
 
-Text goes here. Place your data in the /data folder, and add dimensions and codebook to the README in that folder. Then print out the output of glimpse() or skim() of your data frame.
+We are currently tidying up the 6 datasets we plan on using for our research. Each of them presents specific data collected in a school year (e.g. 2018-2019, 2023-2024).
 
-```{r}
+Meanwhile, since the datasets from the NGO have the same variables, we will use a past dataset to explain the structure. Our variables are: 
+- `Bottom`: Lowest Score (for agency/ classroom)
+- `Top`: Highest Score (for agency/ classroom
+- `# Children`: Total # of children assessed
+- `Average` : Average Score of children (for agency/ classroom)
+- `# Below` :# of children below developmental expectations
+- `% Below` : % of children below developmental expectations
 
-library(readxl)
-prof_2018_2019 <- read_excel("data/ignore/2018-2019 TSG Comparative FWS  (Pre-COVID) deidentified for BATES - clean.xlsx")
-View(prof_2018_2019)
+```{r reading-data}
+prof_2018_2019 <- read_excel("../data/ignore/file_show.xlsx")
+```
 
-# Code goes here
-# Read in your data file
-# Print the output of glimpse() or skim()
+```{r visualizing-data}
+glimpse(prof_2018_2019)
+```
+
+```{r skimming-data}
+skim(prof_2018_2019)
 ```
 
 ## 3. Data analysis plan
 
-Text goes here.
-- What variables will you visualize to explore your research questions?
-- Will there be any other data that you need to find to help with your research question?
-- Very preliminary exploratory data analysis, including some summary statistics and visualizations, along with some explanation on how they help you learn more about your data. (You can add to these later as you work on your project.)
-- The data visualization(s) that you believe will be useful in exploring your question(s). (You can update these later as you work on your project.)
+We will analyze our data from the following perspective:
+- Pre-COVID-19: `2018_2019`
+- COVID-19: `2020_2021` and `2021_2022`
+- Post-COVID-19: `2022_2023` , `2023_2024` and `2024_2025`
 
+For our research questions, we will analyze the overall performance in each general academic category: `Cognitive`, `Language`, `Literacy`, `Mathematics`, `Physical`, and `Social-Emotional`. 
 
-```{r}
-# Code goes here
-# Code to calculate summary statistics
-# Code for a visualization
-```
+For an in-depth categorization of our data, we will divide the data based on `IEP` and `Age`. 
+
+To compare student success between these groups, we decided to create a new variable representing the percentage of students who meet or exceed expectations. Since the data is divided into semesters, we will combine the answers into one year. We will create a new variable that will store that number. 
+
+#### Graphs:
+
+1. Ridgeline Density Plot - General:  We aim to show how the pandemic affected students overall. To visualize this, we plan to use a density ridgeline graph, where the x-axis represents the school year and the y-axis represents the percentage of children meeting or exceeding expectations. We also plan to separate the data by category using facets for clearer comparisons.
+
+2. Facet Line Graph - Age Groups: We will specifically focus on how the COVID-19 pandemic impacted different age groups, ranging from 0 to 5. We plan to use a line graph, where the x-axis represents the school year and the y-axis represents the percentage of students who meet or exceed expectations. The graph will be faceted by category, and different line colors will represent each age group.
+
+3. Facet Density Plot - IEP Groups: We will use similar axes (x = school year, y = percentage of students who meet or exceed expectations) and the same facet categories as in our second graph. However, instead of focusing on different age groups, this graph will compare students with IEPs to those without IEPs to determine whether children with IEPs were more affected by the pandemic. For now, this graph will include data only up to Winter 2023, since we do not yet have IEP data for the 2023–2024 and 2024–2025 academic years. We are currently waiting for that information from Monica.
