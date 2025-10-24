@@ -29,14 +29,12 @@ students. We will analyze these groups in two categories: based on their
 age or based on whether they have an Individualized Educational Program
 (IEP) or not.
 
-The dataset used for this analysis contains 180 observations and 10
-variables in the main structured table (prof_2018_2019).These variables
-are Category, WHE Bottom, WHE Top, \# Children, Average, \# Below, %
-Below, \# Meeting / Exceeding, % Meeting / Exceeding, and Time Period.
-In our analysis, we included Category, \# Children, \# Below, % Below,
-\# Meeting / Exceeding, % Meeting / Exceeding, and Time Period, while
-WHE Bottom, WHE Top, and Average were not included as analytic outcomes
-and were used only as benchmarks/reference.
+Our dataset has 180 rows and 10 columns (prof_2018_2019): Category, WHE
+Bottom, WHE Top, \# Children, Average, \# Below, % Below, \#
+Meeting/Exceeding, % Meeting/Exceeding, and Time Period. For analysis,
+we used Category, \# Children, \# Below, % Below, \# Meeting/Exceeding,
+% Meeting/Exceeding, and Time Period. We did not analyze WHE Bottom, WHE
+Top, or Average, as we used them only as benchmarks.
 
 ## 2. Data
 
