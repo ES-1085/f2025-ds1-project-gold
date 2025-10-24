@@ -24,8 +24,7 @@ We plan on researching how COVID-19 impacted different groups of students. We wi
 
 The dataset used for this analysis contains 180 observations and 10 variables in the main structured table (prof_2018_2019). These variables are `Category`, `WHE Bottom`, `WHE Top`, `# Children`, `Average`, `# Below`, `% Below`, `# Meeting / Exceeding`, `% Meeting / Exceeding and Time Period.
 
-For analysis, we used Category, # Children, # Below, % Below, # Meeting/Exceeding, % Meeting/Exceeding, and Time Period. We did not analyze WHE Bottom, WHE Top, or Average; we used them only as benchmarks.
-
+For analysis. We did not analyze WHE Bottom, WHE Top, or Average; we used them only as benchmarks.
 ## 2. Data
 
 We are currently tidying up the 6 datasets we plan on using for our research. Each of them presents specific data collected in a school year (e.g. 2018-2019, 2023-2024).
