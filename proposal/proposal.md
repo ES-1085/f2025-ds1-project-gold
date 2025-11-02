@@ -35,6 +35,9 @@ are `Category`, `WHE Bottom`, `WHE Top`, `# Children`, `Average`,
 `# Below`, `% Below`, `# Meeting / Exceeding`, \`% Meeting / Exceeding
 and Time Period.
 
+For analysis. We did not analyze WHE Bottom, WHE Top, or Average, as we
+used them only as benchmarks.
+
 ## 2. Data
 
 We are currently tidying up the 6 datasets we plan on using for our
@@ -123,28 +126,27 @@ based on `IEP` and `Age`.
 
 To compare student success between these groups, we decided to create a
 new variable representing the percentage of students who meet or exceed
-expectations. Since the data is divided into semesters, we will combine
-the answers into one year. We will create a new variable that will store
-that number.
+expectations. We will analyze the data based on 3 timelines (Spring,
+Winter, and Fall) within a school year.
 
 #### Graphs:
 
 1.  Ridgeline Density Plot - General: We aim to show how the pandemic
     affected students overall. To visualize this, we plan to use a
-    density ridgeline graph, where the x-axis represents the school year
-    and the y-axis represents the percentage of children meeting or
+    density ridgeline graph, where the x-axis represents the Season +
+    Year and the y-axis represents the percentage of children meeting or
     exceeding expectations. We also plan to separate the data by
     category using facets for clearer comparisons.
 
 2.  Facet Line Graph - Age Groups: We will specifically focus on how the
     COVID-19 pandemic impacted different age groups, ranging from 0
     to 5. We plan to use a line graph, where the x-axis represents the
-    school year and the y-axis represents the percentage of students who
-    meet or exceed expectations. The graph will be faceted by category,
-    and different line colors will represent each age group.
+    Season + Year and the y-axis represents the percentage of students
+    who meet or exceed expectations. The graph will be faceted by
+    category, and different line colors will represent each age group.
 
 3.  Facet Density Plot - IEP Groups: We will use similar axes (x =
-    school year, y = percentage of students who meet or exceed
+    Season + Year, y = percentage of students who meet or exceed
     expectations) and the same facet categories as in our second graph.
     However, instead of focusing on different age groups, this graph
     will compare students with IEPs to those without IEPs to determine
@@ -152,3 +154,300 @@ that number.
     now, this graph will include data only up to Winter 2023, since we
     do not yet have IEP data for the 2023–2024 and 2024–2025 academic
     years. We are currently waiting for that information from Monica.
+
+#### Preliminary exploratory data analysis
+
+##### Pre-Covid Graph
+
+With this graph, we aim to understand how successful Promise Early
+Education was during a pre-COVID academic year (2018-2019) by comparing
+the percentage of students who met or exceeded expectations across the
+fall, winter, and spring assessments. The x-axis represents the Fall,
+Winter, and Spring assessments for the 2018–2019 academic year, while
+the y-axis shows the percentage of students who met or exceeded
+expectations. The graph includes six facets, each representing a
+different learning domain: `Cognitive`, `Language`,
+`Physical Development`, `Social-Emotional`, `Literacy`, and
+`Mathematics`.
+
+``` r
+fall_social <- prof_2018_2019 |>
+  filter(
+    `Time Period` %in% c("Fall 2018/2019"),
+    `Category` %in% c("Social-Emotional")
+  ) |>
+  summarise(`Time Period` = "Fall 2018/2019",
+            `Category` = "Social-Emotional",
+            `Total # Children` = sum(`# Children`, na.rm = TRUE), 
+            `Meeting / Exceeding Children` = sum(`# Meeting / Exceeding`, na.rm = TRUE), 
+            `% percentage` = round(`Meeting / Exceeding Children`/`Total # Children`*100, digits = 2))
+
+winter_social <- prof_2018_2019 |>
+  filter(
+    `Time Period` %in% c("Winter 2018/2019"),
+    `Category` %in% c("Social-Emotional")
+  ) |>
+  summarise(`Time Period` = "Winter 2018/2019",
+            `Category` = "Social-Emotional",
+            `Total # Children` = sum(`# Children`, na.rm = TRUE), 
+            `Meeting / Exceeding Children` = sum(`# Meeting / Exceeding`, na.rm = TRUE), 
+            `% percentage` = round(`Meeting / Exceeding Children`/`Total # Children`*100, digits = 2))
+
+spring_social <- prof_2018_2019 |>
+  filter(
+    `Time Period` %in% c("Spring 2018/2019"),
+    `Category` %in% c("Social-Emotional")
+  ) |>
+  summarise(`Time Period` = "Spring 2018/2019",
+            `Category` = "Social-Emotional",
+            `Total # Children` = sum(`# Children`, na.rm = TRUE), 
+            `Meeting / Exceeding Children` = sum(`# Meeting / Exceeding`, na.rm = TRUE), 
+            `% percentage` = round(`Meeting / Exceeding Children`/`Total # Children`*100, digits = 2))
+
+social_emotional <- bind_rows(fall_social, winter_social, spring_social)
+```
+
+``` r
+fall_physical <- prof_2018_2019 |>
+  filter(
+    `Time Period` %in% c("Fall 2018/2019"),
+    `Category` %in% c("Physical")
+  ) |>
+  summarise(`Time Period` = "Fall 2018/2019",
+            `Category` = "Physical",
+            `Total # Children` = sum(`# Children`, na.rm = TRUE), 
+            `Meeting / Exceeding Children` = sum(`# Meeting / Exceeding`, na.rm = TRUE), 
+            `% percentage` = round(`Meeting / Exceeding Children`/`Total # Children`*100, digits = 2))
+
+winter_physical <- prof_2018_2019 |>
+  filter(
+    `Time Period` %in% c("Winter 2018/2019"),
+    `Category` %in% c("Physical")
+  ) |>
+  summarise(`Time Period` = "Winter 2018/2019",
+            `Category` = "Physical",
+            `Total # Children` = sum(`# Children`, na.rm = TRUE), 
+            `Meeting / Exceeding Children` = sum(`# Meeting / Exceeding`, na.rm = TRUE), 
+            `% percentage` = round(`Meeting / Exceeding Children`/`Total # Children`*100, digits = 2))
+
+spring_physical <- prof_2018_2019 |>
+  filter(
+    `Time Period` %in% c("Spring 2018/2019"),
+    `Category` %in% c("Physical")
+  ) |>
+  summarise(`Time Period` = "Spring 2018/2019",
+            `Category` = "Physical",
+            `Total # Children` = sum(`# Children`, na.rm = TRUE), 
+            `Meeting / Exceeding Children` = sum(`# Meeting / Exceeding`, na.rm = TRUE), 
+            `% percentage` = round(`Meeting / Exceeding Children`/`Total # Children`*100, digits = 2))
+
+physical <- bind_rows(fall_physical, winter_physical, spring_physical)
+```
+
+``` r
+fall_math <- prof_2018_2019 |>
+  filter(
+    `Time Period` %in% c("Fall 2018/2019"),
+    `Category` %in% c("Mathematics")
+  ) |>
+  summarise(`Time Period` = "Fall 2018/2019",
+            `Category` = "Mathematics",
+            `Total # Children` = sum(`# Children`, na.rm = TRUE), 
+            `Meeting / Exceeding Children` = sum(`# Meeting / Exceeding`, na.rm = TRUE), 
+            `% percentage` = round(`Meeting / Exceeding Children`/`Total # Children`*100, digits = 2))
+
+winter_math <- prof_2018_2019 |>
+  filter(
+    `Time Period` %in% c("Winter 2018/2019"),
+    `Category` %in% c("Mathematics")
+  ) |>
+  summarise(`Time Period` = "Winter 2018/2019",
+            `Category` = "Mathematics",
+            `Total # Children` = sum(`# Children`, na.rm = TRUE), 
+            `Meeting / Exceeding Children` = sum(`# Meeting / Exceeding`, na.rm = TRUE), 
+            `% percentage` = round(`Meeting / Exceeding Children`/`Total # Children`*100, digits = 2))
+
+spring_math <- prof_2018_2019 |>
+  filter(
+    `Time Period` %in% c("Spring 2018/2019"),
+    `Category` %in% c("Mathematics")
+  ) |>
+  summarise(`Time Period` = "Spring 2018/2019",
+            `Category` = "Mathematics",
+            `Total # Children` = sum(`# Children`, na.rm = TRUE), 
+            `Meeting / Exceeding Children` = sum(`# Meeting / Exceeding`, na.rm = TRUE), 
+            `% percentage` = round(`Meeting / Exceeding Children`/`Total # Children`*100, digits = 2))
+
+mathematics <- bind_rows(fall_math, winter_math, spring_math)
+```
+
+``` r
+fall_literacy <- prof_2018_2019 |>
+  filter(
+    `Time Period` %in% c("Fall 2018/2019"),
+    `Category` %in% c("Literacy")
+  ) |>
+  summarise(`Time Period` = "Fall 2018/2019",
+            `Category` = "Literacy",
+            `Total # Children` = sum(`# Children`, na.rm = TRUE), 
+            `Meeting / Exceeding Children` = sum(`# Meeting / Exceeding`, na.rm = TRUE), 
+            `% percentage` = round(`Meeting / Exceeding Children`/`Total # Children`*100, digits = 2))
+
+winter_literacy <- prof_2018_2019 |>
+  filter(
+    `Time Period` %in% c("Winter 2018/2019"),
+    `Category` %in% c("Literacy")
+  ) |>
+  summarise(`Time Period` = "Winter 2018/2019",
+            `Category` = "Literacy",
+            `Total # Children` = sum(`# Children`, na.rm = TRUE), 
+            `Meeting / Exceeding Children` = sum(`# Meeting / Exceeding`, na.rm = TRUE), 
+            `% percentage` = round(`Meeting / Exceeding Children`/`Total # Children`*100, digits = 2))
+
+spring_literacy <- prof_2018_2019 |>
+  filter(
+    `Time Period` %in% c("Spring 2018/2019"),
+    `Category` %in% c("Literacy")
+  ) |>
+  summarise(`Time Period` = "Spring 2018/2019",
+            `Category` = "Literacy",
+            `Total # Children` = sum(`# Children`, na.rm = TRUE), 
+            `Meeting / Exceeding Children` = sum(`# Meeting / Exceeding`, na.rm = TRUE), 
+            `% percentage` = round(`Meeting / Exceeding Children`/`Total # Children`*100, digits = 2))
+
+literacy <- bind_rows(fall_literacy, winter_literacy, spring_literacy)
+```
+
+``` r
+fall_language <- prof_2018_2019 |>
+  filter(
+    `Time Period` %in% c("Fall 2018/2019"),
+    `Category` %in% c("Language")
+  ) |>
+  summarise(`Time Period` = "Fall 2018/2019",
+            `Category` = "Language",
+            `Total # Children` = sum(`# Children`, na.rm = TRUE), 
+            `Meeting / Exceeding Children` = sum(`# Meeting / Exceeding`, na.rm = TRUE), 
+            `% percentage` = round(`Meeting / Exceeding Children`/`Total # Children`*100, digits = 2))
+
+winter_language <- prof_2018_2019 |>
+  filter(
+    `Time Period` %in% c("Winter 2018/2019"),
+    `Category` %in% c("Language")
+  ) |>
+  summarise(`Time Period` = "Winter 2018/2019",
+            `Category` = "Language",
+            `Total # Children` = sum(`# Children`, na.rm = TRUE), 
+            `Meeting / Exceeding Children` = sum(`# Meeting / Exceeding`, na.rm = TRUE), 
+            `% percentage` = round(`Meeting / Exceeding Children`/`Total # Children`*100, digits = 2))
+
+spring_language <- prof_2018_2019 |>
+  filter(
+    `Time Period` %in% c("Spring 2018/2019"),
+    `Category` %in% c("Language")
+  ) |>
+  summarise(`Time Period` = "Spring 2018/2019",
+            `Category` = "Language",
+            `Total # Children` = sum(`# Children`, na.rm = TRUE), 
+            `Meeting / Exceeding Children` = sum(`# Meeting / Exceeding`, na.rm = TRUE), 
+            `% percentage` = round(`Meeting / Exceeding Children`/`Total # Children`*100, digits = 2))
+
+language <- bind_rows(fall_language, winter_language, spring_language)
+```
+
+``` r
+fall_cognitive <- prof_2018_2019 |>
+  filter(
+    `Time Period` %in% c("Fall 2018/2019"),
+    `Category` %in% c("Cognitive")
+  ) |>
+  summarise(`Time Period` = "Fall 2018/2019",
+            `Category` = "Cognitive",
+            `Total # Children` = sum(`# Children`, na.rm = TRUE), 
+            `Meeting / Exceeding Children` = sum(`# Meeting / Exceeding`, na.rm = TRUE), 
+            `% percentage` = round(`Meeting / Exceeding Children`/`Total # Children`*100, digits = 2))
+
+winter_cognitive <- prof_2018_2019 |>
+  filter(
+    `Time Period` %in% c("Winter 2018/2019"),
+    `Category` %in% c("Cognitive")
+  ) |>
+  summarise(`Time Period` = "Winter 2018/2019",
+            `Category` = "Cognitive",
+            `Total # Children` = sum(`# Children`, na.rm = TRUE), 
+            `Meeting / Exceeding Children` = sum(`# Meeting / Exceeding`, na.rm = TRUE), 
+            `% percentage` = round(`Meeting / Exceeding Children`/`Total # Children`*100, digits = 2))
+
+spring_cognitive <- prof_2018_2019 |>
+  filter(
+    `Time Period` %in% c("Spring 2018/2019"),
+    `Category` %in% c("Cognitive")
+  ) |>
+  summarise(`Time Period` = "Spring 2018/2019",
+            `Category` = "Cognitive",
+            `Total # Children` = sum(`# Children`, na.rm = TRUE), 
+            `Meeting / Exceeding Children` = sum(`# Meeting / Exceeding`, na.rm = TRUE), 
+            `% percentage` = round(`Meeting / Exceeding Children`/`Total # Children`*100, digits = 2))
+
+cognitive <- bind_rows(fall_cognitive, winter_cognitive, spring_cognitive)
+```
+
+``` r
+merged_table <- bind_rows(
+  social_emotional, 
+  physical, 
+  mathematics, 
+  literacy,
+  language, 
+  cognitive
+)
+
+merged_table
+```
+
+    ## # A tibble: 18 × 5
+    ##    `Time Period`    Category         `Total # Children` Meeting / Exceeding Ch…¹
+    ##    <chr>            <chr>                         <dbl>                    <dbl>
+    ##  1 Fall 2018/2019   Social-Emotional                 71                       38
+    ##  2 Winter 2018/2019 Social-Emotional                 71                       60
+    ##  3 Spring 2018/2019 Social-Emotional                 71                       66
+    ##  4 Fall 2018/2019   Physical                         71                       61
+    ##  5 Winter 2018/2019 Physical                         71                       60
+    ##  6 Spring 2018/2019 Physical                         71                       66
+    ##  7 Fall 2018/2019   Mathematics                      70                       36
+    ##  8 Winter 2018/2019 Mathematics                      70                       47
+    ##  9 Spring 2018/2019 Mathematics                      70                       61
+    ## 10 Fall 2018/2019   Literacy                         71                       28
+    ## 11 Winter 2018/2019 Literacy                         71                       44
+    ## 12 Spring 2018/2019 Literacy                         71                       56
+    ## 13 Fall 2018/2019   Language                         71                       39
+    ## 14 Winter 2018/2019 Language                         71                       58
+    ## 15 Spring 2018/2019 Language                         71                       64
+    ## 16 Fall 2018/2019   Cognitive                        71                       33
+    ## 17 Winter 2018/2019 Cognitive                        71                       56
+    ## 18 Spring 2018/2019 Cognitive                        71                       63
+    ## # ℹ abbreviated name: ¹​`Meeting / Exceeding Children`
+    ## # ℹ 1 more variable: `% percentage` <dbl>
+
+``` r
+ggplot(merged_table, aes(x = `Time Period`, y = `% percentage`)) +
+  geom_col() +
+  facet_wrap(~ `Category`) +
+  ylim(0, 100) +
+  labs(
+    title = "Percentage of Children Meeting/Exceeding Expectations",
+    subtitle = "by Time Period and Category",
+    x = "Time Period",
+    y = "Percentage (%)"
+  ) + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+![](proposal_files/figure-gfm/mapping-categorized-table-1.png)<!-- -->
+
+Thanks to this graph, we can see how successful Promise Early Education
+was in categories like `Physical`. Moreover, we can see the growth of
+the students from the beggining (Fall) to the end of the school year
+(Winter and Sping), especially in categories like `Cognitive` and
+`Social-Emotional` where the percentage grew from around 50% to over
+80%.
