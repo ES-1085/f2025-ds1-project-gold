@@ -203,3 +203,116 @@ the students from the beggining (Fall) to the end of the school year
 (Winter and Sping), especially in categories like `Cognitive` and
 `Social-Emotional` where the percentage grew from around 50% to over
 80%.
+
+##### Facet Line Graph
+
+``` r
+library(tidyverse)
+
+# Check which datasets exist
+datasets_needed <- c("X2018_2019", "X2020_2021", "X2021_2022", "X2022_2023", "X2023_2024", "X2024_2025")
+existing_data <- datasets_needed[sapply(datasets_needed, exists)]
+missing_data <- datasets_needed[!sapply(datasets_needed, exists)]
+
+print("Datasets found:")
+```
+
+    ## [1] "Datasets found:"
+
+``` r
+print(existing_data)
+```
+
+    ## character(0)
+
+``` r
+print("Datasets missing:")
+```
+
+    ## [1] "Datasets missing:"
+
+``` r
+print(missing_data)
+```
+
+    ## [1] "X2018_2019" "X2020_2021" "X2021_2022" "X2022_2023" "X2023_2024"
+    ## [6] "X2024_2025"
+
+``` r
+# If data is missing, show available objects
+if(length(missing_data) > 0) {
+  print("Available objects in environment:")
+  print(ls())
+}
+```
+
+    ## [1] "Available objects in environment:"
+    ## [1] "categorized_data_2018_2019" "datasets_needed"           
+    ## [3] "existing_data"              "missing_data"              
+    ## [5] "prof_2018_2019"
+
+``` r
+library(tidyverse)
+library(readxl)
+```
+
+``` r
+# Check if datasets exist, if not show error message
+required_data <- c("X2018_2019", "X2020_2021", "X2021_2022", "X2022_2023", "X2023_2024", "X2024_2025")
+
+# Only run if all data exists
+if(all(sapply(required_data, exists))) {
+  
+  # Clean function
+  fix_data <- function(d){
+    d |>
+      select(Category, Age, `Time Period`, `# Children`, `# Meeting / Exceeding`) |>
+      mutate(
+        `# Children` = as.numeric(`# Children`),
+        `# Meeting / Exceeding` = as.numeric(`# Meeting / Exceeding`)
+      )
+  }
+  
+  # Combine data
+  data <- bind_rows(
+    fix_data(X2018_2019), fix_data(X2020_2021), fix_data(X2021_2022),
+    fix_data(X2022_2023), fix_data(X2023_2024), fix_data(X2024_2025)
+  ) |>
+    mutate(
+      season = str_extract(`Time Period`, "Fall|Winter|Spring"),
+      yr = as.integer(str_extract(`Time Period`, "20\\d{2}")),
+      start = case_when(
+        yr %in% c(2018, 2019) ~ 2018,
+        yr %in% c(2024, 2025) ~ 2024,
+        TRUE ~ yr
+      ),
+      label = paste(season, paste0(start, "-", start + 1)),
+      order = start*10 + match(season, c("Fall","Winter","Spring"))
+    ) |>
+    filter(!is.na(season)) |>
+    group_by(label, Category, Age, order) |>
+    summarise(
+      percentage = sum(`# Meeting / Exceeding`, na.rm = TRUE) / sum(`# Children`, na.rm = TRUE) * 100,
+      .groups = "drop"
+    )
+  
+  # Make plot
+  ggplot(data, aes(reorder(label, order), percentage, color = Age, group = Age)) +
+    geom_line(linewidth = 1, alpha = 0.6) +
+    geom_point(size = 2, alpha = 0.75) +
+    facet_wrap(~ Category, nrow = 2) +
+    scale_color_viridis_d() +
+    labs(title = "COVID-19 Impact on Age Groups", x = "Time Period", y = "Percentage (%)") +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1), strip.text = element_text(face = "bold"))
+  
+} else {
+  print("ERROR: Missing datasets. You need to load your Excel files first!")
+  print("Add a chunk like this BEFORE this graph:")
+  print("X2018_2019 <- read_excel('path/to/your/file.xlsx')")
+}
+```
+
+    ## [1] "ERROR: Missing datasets. You need to load your Excel files first!"
+    ## [1] "Add a chunk like this BEFORE this graph:"
+    ## [1] "X2018_2019 <- read_excel('path/to/your/file.xlsx')"
