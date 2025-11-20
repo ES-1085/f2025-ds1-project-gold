@@ -206,113 +206,84 @@ the students from the beggining (Fall) to the end of the school year
 
 ##### Facet Line Graph
 
-``` r
-library(tidyverse)
-
-# Check which datasets exist
-datasets_needed <- c("X2018_2019", "X2020_2021", "X2021_2022", "X2022_2023", "X2023_2024", "X2024_2025")
-existing_data <- datasets_needed[sapply(datasets_needed, exists)]
-missing_data <- datasets_needed[!sapply(datasets_needed, exists)]
-
-print("Datasets found:")
-```
-
-    ## [1] "Datasets found:"
+## First read the data
 
 ``` r
-print(existing_data)
-```
-
-    ## character(0)
-
-``` r
-print("Datasets missing:")
-```
-
-    ## [1] "Datasets missing:"
-
-``` r
-print(missing_data)
-```
-
-    ## [1] "X2018_2019" "X2020_2021" "X2021_2022" "X2022_2023" "X2023_2024"
-    ## [6] "X2024_2025"
-
-``` r
-# If data is missing, show available objects
-if(length(missing_data) > 0) {
-  print("Available objects in environment:")
-  print(ls())
-}
-```
-
-    ## [1] "Available objects in environment:"
-    ## [1] "categorized_data_2018_2019" "datasets_needed"           
-    ## [3] "existing_data"              "missing_data"              
-    ## [5] "prof_2018_2019"
-
-``` r
-library(tidyverse)
-library(readxl)
+X2018_2019 <- read_excel("../data/ignore/2018-2019.xlsx")
+X2020_2021 <- read_excel("../data/ignore/2020-2021.xlsx")
+X2021_2022 <- read_excel("../data/ignore/2021-2022.xlsx")
+X2022_2023 <- read_excel("../data/ignore/2022-2023.xlsx")
+X2023_2024 <- read_excel("../data/ignore/2023-2024.xlsx")
+X2024_2025 <- read_excel("../data/ignore/2024-2025.xlsx")
 ```
 
 ``` r
-# Check if datasets exist, if not show error message
-required_data <- c("X2018_2019", "X2020_2021", "X2021_2022", "X2022_2023", "X2023_2024", "X2024_2025")
-
-# Only run if all data exists
-if(all(sapply(required_data, exists))) {
-  
-  # Clean function
-  fix_data <- function(d){
-    d |>
-      select(Category, Age, `Time Period`, `# Children`, `# Meeting / Exceeding`) |>
-      mutate(
-        `# Children` = as.numeric(`# Children`),
-        `# Meeting / Exceeding` = as.numeric(`# Meeting / Exceeding`)
-      )
-  }
-  
-  # Combine data
-  data <- bind_rows(
-    fix_data(X2018_2019), fix_data(X2020_2021), fix_data(X2021_2022),
-    fix_data(X2022_2023), fix_data(X2023_2024), fix_data(X2024_2025)
+# Fix data types BEFORE combining datasets
+data <- bind_rows( X2018_2019 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
+mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), `# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), year = "18-19"),
+X2020_2021 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
+mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), `# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), year = "20-21"), 
+X2021_2022 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
+mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), `# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), year = "21-22"),
+X2022_2023 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
+mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), `# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), year = "22-23"),
+X2023_2024 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
+mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), `# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), year = "23-24"),
+X2024_2025 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
+mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), `# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), year = "24-25")
+) |>
+  mutate(
+season = case_when(
+str_detect(`Time Period`, "Fall") ~ "F",
+str_detect(`Time Period`, "Winter") ~ "W",
+str_detect(`Time Period`, "Spring") ~ "S"
+    ),
+label = paste0(season, year),
+sort_num = as.numeric(str_sub(year, 1, 2)) * 10 + match(season, c("F","W","S"))
   ) |>
-    mutate(
-      season = str_extract(`Time Period`, "Fall|Winter|Spring"),
-      yr = as.integer(str_extract(`Time Period`, "20\\d{2}")),
-      start = case_when(
-        yr %in% c(2018, 2019) ~ 2018,
-        yr %in% c(2024, 2025) ~ 2024,
-        TRUE ~ yr
-      ),
-      label = paste(season, paste0(start, "-", start + 1)),
-      order = start*10 + match(season, c("Fall","Winter","Spring"))
-    ) |>
-    filter(!is.na(season)) |>
-    group_by(label, Category, Age, order) |>
-    summarise(
-      percentage = sum(`# Meeting / Exceeding`, na.rm = TRUE) / sum(`# Children`, na.rm = TRUE) * 100,
-      .groups = "drop"
-    )
+drop_na() |>
+group_by(label, Category, Age, sort_num) |>
+summarise(percent = sum(`# Meeting / Exceeding`) / sum(`# Children`) * 100, .groups = "drop")
+
+# Make thee plot and save it to covid_plot variable
+covid_plot <- ggplot(data, aes(reorder(label, sort_num), percent, color = Age, group = Age)) +
+geom_line(size = 1.5, alpha = 0.8) +
+geom_point(size = 2.5, alpha = 0.9) +
+facet_wrap(~Category) +
+scale_color_viridis_d(option = "plasma") +
+ylim(0, 100) +
+labs(title = "COVID-19 Impact on Age Groups", 
+x = "Time Period (F=Fall, W=Winter, S=Spring)", 
+y = "Meeting / Exceeding Percentage", 
+caption = "Data source: Promise Early Education Programs" ) +
   
-  # Make plot
-  ggplot(data, aes(reorder(label, order), percentage, color = Age, group = Age)) +
-    geom_line(linewidth = 1, alpha = 0.6) +
-    geom_point(size = 2, alpha = 0.75) +
-    facet_wrap(~ Category, nrow = 2) +
-    scale_color_viridis_d() +
-    labs(title = "COVID-19 Impact on Age Groups", x = "Time Period", y = "Meeting / Exceeding Percentage(%)") +
-    theme_minimal() +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1), strip.text = element_text(face = "bold"))
-  
-} else {
-  print("ERROR: Missing datasets. You need to load your Excel files first!")
-  print("Add a chunk like this BEFORE this graph:")
-  print("X2018_2019 <- read_excel('path/to/your/file.xlsx')")
-}
+theme_minimal() +
+theme(
+axis.text.x = element_text(angle = 90, size = 9),
+strip.text = element_text(face = "bold"),
+legend.position = "bottom"
+  )
 ```
 
-    ## [1] "ERROR: Missing datasets. You need to load your Excel files first!"
-    ## [1] "Add a chunk like this BEFORE this graph:"
-    ## [1] "X2018_2019 <- read_excel('path/to/your/file.xlsx')"
+    ## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+    ## ℹ Please use `linewidth` instead.
+    ## This warning is displayed once every 8 hours.
+    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+    ## generated.
+
+``` r
+#Save
+ggsave("covid_clear_plot.png", covid_plot, width = 20, height = 12, dpi = 300)
+```
+
+    ## Warning: Removed 2 rows containing missing values or values outside the scale range
+    ## (`geom_point()`).
+
+``` r
+covid_plot
+```
+
+    ## Warning: Removed 2 rows containing missing values or values outside the scale range
+    ## (`geom_point()`).
+
+<img src="proposal_files/figure-gfm/unnamed-chunk-1-1.png" alt="This facet line chart shows how the percentage of children meeting expected learning goals changed from the 2018–2019 to 2024–2025 school years. Each colored line represents a different age group (0–1, 1–2, 2–3, 3–4, and 4–5 years old). The chart is divided into six panels, one for each learning area: Cognitive, Language, Literacy, Mathematics, Physical, and Social-Emotional development. The colors (from the viridis palette) distinguish the age groups. The purpose of this chart is to highlight how the COVID-19 pandemic affected different age groups learning progress and to show how children’s development has changed and recovered across years and learning categories."  />
