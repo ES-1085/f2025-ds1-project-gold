@@ -218,7 +218,7 @@ X2024_2025 <- read_excel("../data/ignore/2024-2025.xlsx")
 ```
 
 ``` r
-# Fix data types BEFORE combining datasets
+# Merge data
 data <- bind_rows( X2018_2019 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
 mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), `# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), year = "18-19"),
 X2020_2021 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
@@ -245,7 +245,7 @@ drop_na() |>
 group_by(label, Category, Age, sort_num) |>
 summarise(percent = sum(`# Meeting / Exceeding`) / sum(`# Children`) * 100, .groups = "drop")
 
-# Make thee plot and save it to covid_plot variable
+# I will make the plot and save it to covid_plot variable
 covid_plot <- ggplot(data, aes(reorder(label, sort_num), percent, color = Age, group = Age)) +
 geom_line(size = 1.5, alpha = 0.8) +
 geom_point(size = 2.5, alpha = 0.9) +

@@ -119,7 +119,7 @@ X2024_2025 <- read_excel("../data/ignore/2024-2025.xlsx")
 
 ```{r fig.alt = "This facet line chart shows how the percentage of children meeting expected learning goals changed from the 2018–2019 to 2024–2025 school years. Each colored line represents a different age group (0–1, 1–2, 2–3, 3–4, and 4–5 years old). The chart is divided into six panels, one for each learning area: Cognitive, Language, Literacy, Mathematics, Physical, and Social-Emotional development. The colors (from the viridis palette) distinguish the age groups. The purpose of this chart is to highlight how the COVID-19 pandemic affected different age groups learning progress and to show how children’s development has changed and recovered across years and learning categories."}
 
-# Fix data types BEFORE combining datasets
+# Merge data
 data <- bind_rows( X2018_2019 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
 mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), `# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), year = "18-19"),
 X2020_2021 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
@@ -146,7 +146,7 @@ drop_na() |>
 group_by(label, Category, Age, sort_num) |>
 summarise(percent = sum(`# Meeting / Exceeding`) / sum(`# Children`) * 100, .groups = "drop")
 
-# Make thee plot and save it to covid_plot variable
+# I will make the plot and save it to covid_plot variable
 covid_plot <- ggplot(data, aes(reorder(label, sort_num), percent, color = Age, group = Age)) +
 geom_line(size = 1.5, alpha = 0.8) +
 geom_point(size = 2.5, alpha = 0.9) +
@@ -170,3 +170,4 @@ ggsave("covid_clear_plot.png", covid_plot, width = 20, height = 12, dpi = 300)
 covid_plot
 ```
 
+ 
