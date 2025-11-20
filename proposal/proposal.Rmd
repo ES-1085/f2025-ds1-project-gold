@@ -170,4 +170,3 @@ ggsave("covid_clear_plot.png", covid_plot, width = 20, height = 12, dpi = 300)
 covid_plot
 ```
 
-
