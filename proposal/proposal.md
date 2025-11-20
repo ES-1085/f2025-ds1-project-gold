@@ -302,9 +302,9 @@ if(all(sapply(required_data, exists))) {
     geom_point(size = 2, alpha = 0.75) +
     facet_wrap(~ Category, nrow = 2) +
     scale_color_viridis_d() +
-    labs(title = "COVID-19 Impact on Age Groups", x = "Time Period", y = "Percentage (%)") +
+    labs(title = "COVID-19 Impact on Age Groups", x = "Time Period", y = "Meeting / Exceeding Percentage(%)") +
     theme_minimal() +
-    theme(axis.text.x = element_text(angle = 90, hjust = 1), strip.text = element_text(face = "bold"))
+    theme(axis.text.x = element_text(angle = 45, hjust = 1), strip.text = element_text(face = "bold"))
   
 } else {
   print("ERROR: Missing datasets. You need to load your Excel files first!")
