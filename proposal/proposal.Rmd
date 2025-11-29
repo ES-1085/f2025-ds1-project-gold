@@ -171,3 +171,96 @@ covid_plot
 ```
 
 As we see COVID-19 pandemic made it much harder for young children to learn and grow, especially in Social-Emotional and Language skills. Children stayed physically active and healthy but they struggled more with managing feelings and talking to others. The data reveals that the youngest children aged 0–2 have had the biggest drops in progress recently and that happens likely because they were born during stressful times with less social interaction. While they recover well during the school year, this data still highlights a strong need for summer bridge programs and focused social-emotional support to help them stay more on track and grow.
+
+```{r}
+
+
+# First Mix all the data from different years
+data <- bind_rows( X2018_2019 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
+mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
+           `# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
+year = "18-19"),
+X2020_2021 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
+mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
+           `# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
+ year = "20-21"), 
+X2021_2022 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
+mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
+           `# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
+year = "21-22"),
+X2022_2023 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
+mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
+           `# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
+year = "22-23"),
+X2023_2024 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
+mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
+           `# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
+year = "23-24"),
+X2024_2025 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
+mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
+           `# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
+year = "24-25")
+)
+
+## add labels and calculate percentages
+data <- data |> mutate(
+season = case_when(
+str_detect(`Time Period`, "Fall") ~ "F",
+str_detect(`Time Period`, "Winter") ~ "W",
+str_detect(`Time Period`, "Spring") ~ "S"
+    ),
+label = paste0(season, year),
+sort_num = as.numeric(str_sub(year, 1, 2)) * 10 + match(season, c("F","W","S"))
+  ) |>
+drop_na() |>
+group_by(label, Category, Age, sort_num) |>
+summarise(percent = sum(`# Meeting / Exceeding`) / sum(`# Children`) * 100, .groups = "drop")
+
+# Show where COVID start and where it ends
+covid_start <- 183.5
+covid_end <- 203.5
+
+# Create the plot
+covid_plot <- ggplot(data, aes(x = sort_num, y = percent, color = Age, group = Age)) +
+annotate("rect", xmin = covid_start, xmax = covid_end, ymin = 0, ymax = 100, 
+fill = "#ff4443", alpha = 0.15) +
+geom_vline(xintercept = covid_start, color = "#cc0000", size = 1.5, 
+linetype = "solid", alpha = 0.8) +
+geom_vline(xintercept = covid_end, color = "#cc0000", size = 1.5, 
+linetype = "dashed", alpha = 0.6) +
+geom_line(size = 1.5, alpha = 0.85) +
+geom_point(size = 2.8, alpha = 0.9) +
+annotate("text", x = covid_start - 5, y = 95, label = "PRE-COVID", 
+color = "gray40", fontface = "bold", size = 3, alpha = 0.6) +
+annotate("text", x = (covid_start + covid_end) / 2, y = 95, label = "COVID-19\nIMPACT", 
+color = "#cc0000", fontface = "bold", size = 3.5, alpha = 0.7) +
+annotate("text", x = covid_end + 10, y = 95, label = "RECOVERY", 
+color = "gray40", fontface = "bold", size = 3, alpha = 0.6) +
+facet_wrap(~Category, ncol = 3) +
+scale_color_viridis_d(option = "plasma", 
+labels = c("0-1 yr", "1-2 yrs", "2-3 yrs", "3-4 yrs", "4-5 yrs")) +
+scale_x_continuous(breaks = unique(data$sort_num),
+labels = unique(data$label)[order(unique(data$sort_num))]) +
+ylim(0, 100) +
+labs(title = "COVID-19 Impact on Child Development Across Age Groups",
+subtitle = "Red zone indicates COVID-19 impact period (2019-2021) | Lines show recovery trajectory",
+x = "Time Period (F=Fall, W=Winter, S=Spring)", 
+y = "Meeting / Exceeding Learning Goals (%)", 
+color = "Age Group",
+caption = "Data source: Promise Early Education Programs") +
+theme_minimal(base_size = 12) +
+theme(plot.title = element_text(face = "bold", size = 16, hjust = 0.5),
+plot.subtitle = element_text(size = 11, hjust = 0.5, color = "gray40"),
+axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 8),
+strip.text = element_text(face = "bold", size = 11),
+legend.position = "bottom",
+legend.title = element_text(face = "bold"),
+panel.grid.minor = element_blank(),
+panel.grid.major.x = element_line(color = "gray100", size = 0.3),
+plot.caption = element_text(hjust = 1, color = "gray60", size = 9))
+
+# Save and show
+ggsave("covid_impact_enhanced.png", covid_plot, width = 20, height = 12, dpi = 300)
+covid_plot
+```
+
