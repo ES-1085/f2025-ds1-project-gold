@@ -276,14 +276,14 @@ legend.position = "bottom"
 ggsave("covid_clear_plot.png", covid_plot, width = 20, height = 12, dpi = 300)
 ```
 
-    ## Warning: Removed 2 rows containing missing values or values outside the scale range
+    ## Warning: Removed 21 rows containing missing values or values outside the scale range
     ## (`geom_point()`).
 
 ``` r
 covid_plot
 ```
 
-    ## Warning: Removed 2 rows containing missing values or values outside the scale range
+    ## Warning: Removed 21 rows containing missing values or values outside the scale range
     ## (`geom_point()`).
 
 <img src="proposal_files/figure-gfm/unnamed-chunk-1-1.png" alt="This faceted line chart tracks the percentage of children meeting learning goals across six specific developmental categories: Cognitive, Language, Literacy, Mathematics, Physical, and Social-Emotional. The data covers the 2018–2019 to 2024–2025 school years and organizes time by season: Fall (F), Winter (W) and Spring (S) to highlight progress throughout each year. Each colored line represents a different age group: Dark Blue is 0–1 years, Purple is 1–2 years, Pink is 2–3 years, Orange is 3–4 years and Yellow is 4–5 years. The purpose of this chart is to visualize how the COVID-19 pandemic disrupted learning in these specific areas and to track how children's development has recovered over time."  />
