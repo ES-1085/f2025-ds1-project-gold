@@ -284,33 +284,6 @@ ggsave("covid_clear_plot.png", covid_plot, width = 20, height = 12, dpi = 300)
 As we see COVID-19 pandemic made it much harder for young children to learn and grow, especially in Social-Emotional and Language skills. Children stayed physically active and healthy but they struggled more with managing feelings and talking to others. The data reveals that the youngest children aged 0–2 have had the biggest drops in progress recently and that happens likely because they were born during stressful times with less social interaction. While they recover well during the school year, this data still highlights a strong need for summer bridge programs and focused social-emotional support to help them stay more on track and grow.
 
 ```{r}
-
-### Put together all the data from different years
-data <- bind_rows( X2018_2019 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
-`# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
-year = "2019"),
-X2020_2021 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
-mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
-`# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
-year = "2021"), 
-X2021_2022 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
-mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
-`# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
-year = "2022"),
-X2022_2023 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
-mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
-`# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
-year = "2023"),
-X2023_2024 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
-mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
-`# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
-year = "2024"),
-X2024_2025 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
-mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
-`# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
-year = "2025")
-)
-
 # filter 0-1 age group and calculate percentages
 data <- data |>
 filter(Age != "0-1") |>
