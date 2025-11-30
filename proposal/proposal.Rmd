@@ -108,7 +108,7 @@ Thanks to this graph, we can see how successful Promise Early Education was in c
 
 ### Reading Data
 
-```{r reading-data}
+```{r reading-all-data}
 X2018_2019 <- read_excel("../data/ignore/2018-2019.xlsx")
 X2020_2021 <- read_excel("../data/ignore/2020-2021.xlsx")
 X2021_2022 <- read_excel("../data/ignore/2021-2022.xlsx")
@@ -116,9 +116,10 @@ X2022_2023 <- read_excel("../data/ignore/2022-2023.xlsx")
 X2023_2024 <- read_excel("../data/ignore/2023-2024.xlsx")
 X2024_2025 <- read_excel("../data/ignore/2024-2025.xlsx")
 ```
+
 ### Cleaning the imported data and ordering it chronologically 
 
-```{r}
+```{r cleaning-all-tables}
 general_data_table <- bind_rows(
   #for each year we need to first convert our number of children, number of meeting/exceeding, and percentage of meeting/exceeding in numerit values and create a year column that would help us with sorting and labeling
   X2018_2019 |>
@@ -182,7 +183,7 @@ general_data_table <- general_data_table |>
 #### First Attempt
 We found this plot too complicated for the general analysis that we wanted to look at and also a bit similar to the second, more detailed plot we had in plan. 
 
-```{r}
+```{r general-plot-attempt-1}
 general_data_plot <- ggplot(general_data_table, aes(x = label, y = `% Meeting / Exceeding`, color = Age, group = Age)) +
   geom_line(size = 1.1) +
   geom_point(size = 2) +
@@ -209,7 +210,7 @@ ggsave("general_plot.png", general_data_plot, width = 10, height = 20, dpi = 300
 
 #### Second Attempt
 
-```{r}
+```{r general-plot-attempt-2}
 #creating a new column that would help us highlight the beginning of the school year
 average_general_data_table <- general_data_table |>
   mutate(is_fall = (`season` == "Fall"))
@@ -257,7 +258,7 @@ ggsave("average_general_plot.png", average_general_data_plot, width = 10, height
 ### Age Grouped Plot
 ```{r fig.alt = "This faceted line chart tracks the percentage of children meeting learning goals across six specific developmental categories: Cognitive, Language, Literacy, Mathematics, Physical, and Social-Emotional. The data covers the 2018–2019 to 2024–2025 school years and organizes time by season: Fall (F), Winter (W) and Spring (S) to highlight progress throughout each year. Each colored line represents a different age group: Dark Blue is 0–1 years, Purple is 1–2 years, Pink is 2–3 years, Orange is 3–4 years and Yellow is 4–5 years. The purpose of this chart is to visualize how the COVID-19 pandemic disrupted learning in these specific areas and to track how children's development has recovered over time."}
 
-covid_plot <- ggplot(data, aes(reorder(label, sort_num), percent, color = Age, group = Age)) +
+covid_plot <- ggplot(general_data_table, aes(reorder(label, sort_num), `% Meeting / Exceeding`, color = Age, group = Age)) +
 geom_line(size = 1.5, alpha = 0.8) +
 geom_point(size = 2.5, alpha = 0.9) +
 facet_wrap( ~ Category) +
@@ -285,7 +286,7 @@ As we see COVID-19 pandemic made it much harder for young children to learn and 
 
 ```{r}
 # filter 0-1 age group and calculate percentages
-data <- data |>
+data <- general_data_table |>
 filter(Age != "0-1") |>
 drop_na() |>
 group_by(year, Category, Age) |>

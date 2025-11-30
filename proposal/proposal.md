@@ -204,9 +204,9 @@ the students from the beggining (Fall) to the end of the school year
 `Social-Emotional` where the percentage grew from around 50% to over
 80%.
 
-##### Facet Line Graph
+# Handout Work
 
-## First read the data
+### Reading Data
 
 ``` r
 X2018_2019 <- read_excel("../data/ignore/2018-2019.xlsx")
@@ -217,51 +217,92 @@ X2023_2024 <- read_excel("../data/ignore/2023-2024.xlsx")
 X2024_2025 <- read_excel("../data/ignore/2024-2025.xlsx")
 ```
 
-``` r
-# Merge data
-data <- bind_rows( X2018_2019 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
-mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), `# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), year = "18-19"),
-X2020_2021 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
-mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), `# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), year = "20-21"), 
-X2021_2022 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
-mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), `# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), year = "21-22"),
-X2022_2023 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
-mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), `# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), year = "22-23"),
-X2023_2024 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
-mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), `# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), year = "23-24"),
-X2024_2025 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
-mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), `# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), year = "24-25")
-) |>
-  mutate(
-season = case_when(
-str_detect(`Time Period`, "Fall") ~ "F",
-str_detect(`Time Period`, "Winter") ~ "W",
-str_detect(`Time Period`, "Spring") ~ "S"
-    ),
-label = paste0(season, year),
-sort_num = as.numeric(str_sub(year, 1, 2)) * 10 + match(season, c("F","W","S"))
-  ) |>
-drop_na() |>
-group_by(label, Category, Age, sort_num) |>
-summarise(percent = sum(`# Meeting / Exceeding`) / sum(`# Children`) * 100, .groups = "drop")
+### Cleaning the imported data and ordering it chronologically
 
-# I will make the plot and save it to covid_plot variable
-covid_plot <- ggplot(data, aes(reorder(label, sort_num), percent, color = Age, group = Age)) +
-geom_line(size = 1.5, alpha = 0.8) +
-geom_point(size = 2.5, alpha = 0.9) +
-facet_wrap(~Category) +
-scale_color_viridis_d(option = "plasma") +
-ylim(0, 100) +
-labs(title = "COVID-19 Impact on Age Groups", 
-x = "Time Period (F=Fall, W=Winter, S=Spring)", 
-y = "Meeting / Exceeding Percentage", 
-caption = "Data source: Promise Early Education Programs" ) +
-  
-theme_minimal() +
-theme(
-axis.text.x = element_text(angle = 90, size = 9),
-strip.text = element_text(face = "bold"),
-legend.position = "bottom"
+``` r
+general_data_table <- bind_rows(
+  #for each year we need to first convert our number of children, number of meeting/exceeding, and percentage of meeting/exceeding in numerit values and create a year column that would help us with sorting and labeling
+  X2018_2019 |>
+    mutate(
+      `# Children` = parse_number(as.character(`# Children`), na = c("N/A", "NA")), 
+      `# Meeting / Exceeding` = parse_number(as.character(`# Meeting / Exceeding`), na = c("N/A", "NA")), 
+      `% Meeting / Exceeding` = parse_number(as.character(`% Meeting / Exceeding`)), 
+      year = "18-19"), 
+  X2020_2021 |>
+    mutate(
+      `# Children` = parse_number(as.character(`# Children`), na = c("N/A", "NA")), 
+      `# Meeting / Exceeding` = parse_number(as.character(`# Meeting / Exceeding`), na = c("N/A", "NA")), 
+      `% Meeting / Exceeding` = parse_number(as.character(`% Meeting / Exceeding`)), 
+      year = "20-21"), 
+  X2021_2022|>
+    mutate(
+      `# Children` = parse_number(as.character(`# Children`), na = c("N/A", "NA")), 
+      `# Meeting / Exceeding` = parse_number(as.character(`# Meeting / Exceeding`), na = c("N/A", "NA")), 
+      `% Meeting / Exceeding` = parse_number(as.character(`% Meeting / Exceeding`)), 
+      year = "21-22"), 
+  X2022_2023|>
+    mutate(
+      `# Children` = parse_number(as.character(`# Children`), na = c("N/A", "NA")), 
+      `# Meeting / Exceeding` = parse_number(as.character(`# Meeting / Exceeding`), na = c("N/A", "NA")), 
+      `% Meeting / Exceeding` = parse_number(as.character(`% Meeting / Exceeding`)), 
+      year = "22-23"), 
+  X2023_2024|>
+    mutate(
+      `# Children` = parse_number(as.character(`# Children`), na = c("N/A", "NA")), 
+      `# Meeting / Exceeding` = parse_number(as.character(`# Meeting / Exceeding`), na = c("N/A", "NA")), 
+      `% Meeting / Exceeding` = parse_number(as.character(`% Meeting / Exceeding`), na = c("N/A", "NA", "#DIV/0!")), 
+      year = "23-24"), 
+  X2024_2025|>
+    mutate(
+      `# Children` = parse_number(as.character(`# Children`), na = c("N/A", "NA")), 
+      `# Meeting / Exceeding` = parse_number(as.character(`# Meeting / Exceeding`), na = c("N/A", "NA")), 
+      `% Meeting / Exceeding` = parse_number(as.character(`% Meeting / Exceeding`)), 
+      year = "24-25")
+  ) |>
+  #shortening and simplifying the label for each school year and trimester
+  mutate(
+    season = case_when(
+      str_detect(`Time Period`, "Fall") ~ "Fall",
+      str_detect(`Time Period`, "Winter") ~ "Winter",
+      str_detect(`Time Period`, "Spring") ~ "Spring"
+    ),
+    label = paste(season, year),
+    #sorting for chronological order taking the beginning of the school year and the code for each season (Fall - 1, Winter - 2, Spring - 3)
+    #e.g. Fall 2018-2019 -> 181, Winter 2021-2022 -> 212
+    sort_num = as.numeric(str_sub(year, 1, 2)) * 10 + match(season, c("Fall","Winter","Spring")) 
+  )
+#ordering our data chronologically
+general_data_table <- general_data_table |>
+  mutate(
+    label = fct_reorder(label, sort_num)
+  )
+```
+
+### General Data Plot
+
+#### First Attempt
+
+We found this plot too complicated for the general analysis that we
+wanted to look at and also a bit similar to the second, more detailed
+plot we had in plan.
+
+``` r
+general_data_plot <- ggplot(general_data_table, aes(x = label, y = `% Meeting / Exceeding`, color = Age, group = Age)) +
+  geom_line(size = 1.1) +
+  geom_point(size = 2) +
+  facet_wrap(~ Category, ncol = 1) +
+  ylim(0, 100)+
+  labs(
+    title = "%Meeting/Exceeding Over 6 School Years",
+    subtitle = "by Category",
+    x = "School Year (Season–Year)",
+    y = "Percent Meeting/Exceeding"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+    strip.text = element_text(face = "bold"),
+    panel.spacing = unit(1, "lines")
   )
 ```
 
@@ -272,21 +313,131 @@ legend.position = "bottom"
     ## generated.
 
 ``` r
-#Save
-ggsave("covid_clear_plot.png", covid_plot, width = 20, height = 12, dpi = 300)
+general_data_plot
 ```
 
-    ## Warning: Removed 21 rows containing missing values or values outside the scale range
+    ## Warning: Removed 2 rows containing missing values or values outside the scale range
     ## (`geom_point()`).
 
+![](proposal_files/figure-gfm/general-plot-attempt-1-1.png)<!-- -->
+
 ``` r
+#saving
+ggsave("general_plot.png", general_data_plot, width = 10, height = 20, dpi = 300)
+```
+
+    ## Warning: Removed 2 rows containing missing values or values outside the scale range
+    ## (`geom_point()`).
+
+#### Second Attempt
+
+``` r
+#creating a new column that would help us highlight the beginning of the school year
+average_general_data_table <- general_data_table |>
+  mutate(is_fall = (`season` == "Fall"))
+
+#calculating the average of all age groups' seasonal performance
+average_general_data_table <- average_general_data_table |>
+  group_by(Category, label, sort_num, is_fall) |>
+  summarise(
+    `Avg Meeting Exceeding` = mean(`% Meeting / Exceeding`, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+average_general_data_table 
+```
+
+    ## # A tibble: 108 × 5
+    ##    Category  label        sort_num is_fall `Avg Meeting Exceeding`
+    ##    <chr>     <fct>           <dbl> <lgl>                     <dbl>
+    ##  1 Cognitive Fall 18-19        181 TRUE                       74.4
+    ##  2 Cognitive Winter 18-19      182 FALSE                      85.1
+    ##  3 Cognitive Spring 18-19      183 FALSE                      92.5
+    ##  4 Cognitive Fall 20-21        201 TRUE                       65.5
+    ##  5 Cognitive Winter 20-21      202 FALSE                      91.4
+    ##  6 Cognitive Spring 20-21      203 FALSE                      94.4
+    ##  7 Cognitive Fall 21-22        211 TRUE                       72.3
+    ##  8 Cognitive Winter 21-22      212 FALSE                      89.7
+    ##  9 Cognitive Spring 21-22      213 FALSE                      93.6
+    ## 10 Cognitive Fall 22-23        221 TRUE                       68.9
+    ## # ℹ 98 more rows
+
+``` r
+#plotting
+average_general_data_plot <- ggplot(average_general_data_table, aes(x = label, y = `Avg Meeting Exceeding`, group = Category)) +
+  geom_line(size = 1) +
+  geom_point(aes(size = ifelse(is_fall, 4, NA)), shape = 20, stroke = 0) +
+  geom_vline(xintercept = "Fall 20-21", linetype = "dotted", color = "red")+
+  geom_vline(xintercept = "Fall 21-22", linetype = "dotted", color = "red")+
+  annotate("rect", xmin="Fall 18-19", xmax="Fall 20-21", ymin = 40, ymax = 100, alpha = 0.1, fill = "red")+
+  annotate("rect", xmin="Fall 18-19", xmax="Fall 21-22", ymin = 40, ymax = 100, alpha = 0.1, fill = "blue")+
+  annotate("rect", xmin="Fall 21-22", xmax="Spring 24-25", ymin = 40, ymax = 100, alpha = 0.1, fill = "green")+
+  facet_wrap(~ Category, ncol = 1) +
+  ylim(40, 100)+
+  labs(
+    title = "Average % Meeting/Exceeding Over 6 School Years",
+    subtitle = "by Category",
+    x = "School Year (Season–Year)",
+    y = "Percent Meeting/Exceeding"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+    legend.position = "none"
+  )
+
+average_general_data_plot
+```
+
+    ## Warning: Removed 72 rows containing missing values or values outside the scale range
+    ## (`geom_point()`).
+
+![](proposal_files/figure-gfm/general-plot-attempt-2-1.png)<!-- -->
+
+``` r
+#saving
+ggsave("average_general_plot.png", average_general_data_plot, width = 10, height = 15, dpi = 300)
+```
+
+    ## Warning: Removed 72 rows containing missing values or values outside the scale range
+    ## (`geom_point()`).
+
+### Age Grouped Plot
+
+``` r
+covid_plot <- ggplot(general_data_table, aes(reorder(label, sort_num), `% Meeting / Exceeding`, color = Age, group = Age)) +
+geom_line(size = 1.5, alpha = 0.8) +
+geom_point(size = 2.5, alpha = 0.9) +
+facet_wrap( ~ Category) +
+scale_color_viridis_d(option = "plasma") +
+ylim(0, 100) +
+labs(
+  title = "COVID-19 Impact on Age Groups", 
+  x = "Time Period", 
+  y = "Meeting / Exceeding Percentage", 
+  caption = "Data source: Promise Early Education Programs" ) +
+theme_minimal() +
+theme(
+  axis.text.x = element_text(angle = 90, size = 9),
+  strip.text = element_text(face = "bold"),
+  legend.position = "bottom"
+  )
+
 covid_plot
 ```
 
-    ## Warning: Removed 21 rows containing missing values or values outside the scale range
+    ## Warning: Removed 2 rows containing missing values or values outside the scale range
     ## (`geom_point()`).
 
 <img src="proposal_files/figure-gfm/unnamed-chunk-1-1.png" alt="This faceted line chart tracks the percentage of children meeting learning goals across six specific developmental categories: Cognitive, Language, Literacy, Mathematics, Physical, and Social-Emotional. The data covers the 2018–2019 to 2024–2025 school years and organizes time by season: Fall (F), Winter (W) and Spring (S) to highlight progress throughout each year. Each colored line represents a different age group: Dark Blue is 0–1 years, Purple is 1–2 years, Pink is 2–3 years, Orange is 3–4 years and Yellow is 4–5 years. The purpose of this chart is to visualize how the COVID-19 pandemic disrupted learning in these specific areas and to track how children's development has recovered over time."  />
+
+``` r
+#Saving the plot to .png
+ggsave("covid_clear_plot.png", covid_plot, width = 20, height = 12, dpi = 300)
+```
+
+    ## Warning: Removed 2 rows containing missing values or values outside the scale range
+    ## (`geom_point()`).
 
 As we see COVID-19 pandemic made it much harder for young children to
 learn and grow, especially in Social-Emotional and Language skills.
@@ -300,34 +451,8 @@ programs and focused social-emotional support to help them stay more on
 track and grow.
 
 ``` r
-### Put together all the data from different years
-data <- bind_rows( X2018_2019 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
-`# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
-year = "2019"),
-X2020_2021 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
-mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
-`# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
-year = "2021"), 
-X2021_2022 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
-mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
-`# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
-year = "2022"),
-X2022_2023 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
-mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
-`# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
-year = "2023"),
-X2023_2024 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
-mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
-`# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
-year = "2024"),
-X2024_2025 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
-mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
-`# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
-year = "2025")
-)
-
 # filter 0-1 age group and calculate percentages
-data <- data |>
+data <- general_data_table |>
 filter(Age != "0-1") |>
 drop_na() |>
 group_by(year, Category, Age) |>
