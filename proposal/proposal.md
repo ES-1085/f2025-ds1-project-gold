@@ -298,3 +298,74 @@ times with less social interaction. While they recover well during the
 school year, this data still highlights a strong need for summer bridge
 programs and focused social-emotional support to help them stay more on
 track and grow.
+
+``` r
+### Put together all the data from different years
+data <- bind_rows( X2018_2019 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
+`# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
+year = "2019"),
+X2020_2021 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
+mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
+`# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
+year = "2021"), 
+X2021_2022 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
+mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
+`# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
+year = "2022"),
+X2022_2023 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
+mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
+`# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
+year = "2023"),
+X2023_2024 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
+mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
+`# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
+year = "2024"),
+X2024_2025 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
+mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
+`# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
+year = "2025")
+)
+
+# filter 0-1 age group and calculate percentages
+data <- data |>
+filter(Age != "0-1") |>
+drop_na() |>
+group_by(year, Category, Age) |>
+summarise(percent = sum(`# Meeting / Exceeding`) / sum(`# Children`) * 100, .groups = "drop") |>
+mutate( covid_period = case_when(
+year == "2019" ~ "Before COVID",
+year %in% c("2021", "2022") ~ "During COVID",
+TRUE ~ "After COVID"
+  ),
+covid_period = factor(covid_period, levels = c("Before COVID", "During COVID", "After COVID"))
+)
+
+## Heatmap
+covid_plot <- ggplot(data, aes(x = year, y = Age, fill = percent)) +
+geom_tile(color = "white", size = 0.5) +
+geom_text(aes(label = round(percent, 0)), color = "white", fontface = "bold", size = 3) +
+facet_grid(covid_period ~ Category, scales = "free_y", space = "free_y") +
+scale_fill_viridis_c(option = "plasma", begin = 0.1, end = 0.9) +
+labs(title = "COVID-19 Impact Heatmap: Child Development Across Age Groups",
+subtitle = "Darker colors = Higher performance | Numbers show percentage meeting/exceeding goals",
+x = "Year", y = "Age Group", fill = "% Meeting and Exceeding\nGoals",
+caption = "Data source: Promise Early Education Programs") +
+theme_minimal(base_size = 12) +
+theme(
+plot.title = element_text(face = "bold", size = 15, hjust = 0.5),
+plot.subtitle = element_text(size = 10, hjust = 0.5, color = "gray30", margin = margin(b = 10)),
+axis.text.x = element_text(angle = 0, hjust = 0.5, size = 9),
+axis.text.y = element_text(size = 10),
+strip.text = element_text(face = "bold", size = 10),
+legend.position = "right",
+legend.title = element_text(face = "bold", size = 10),
+panel.grid = element_blank(),
+plot.caption = element_text(size = 8, color = "gray50", hjust = 1)
+  )
+
+# Save png
+ggsave("covid_impact_heatmap.png", covid_plot, width = 14, height = 10, dpi = 300)
+covid_plot
+```
+
+![](proposal_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
