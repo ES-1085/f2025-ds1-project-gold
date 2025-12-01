@@ -344,25 +344,6 @@ average_general_data_table <- average_general_data_table |>
     .groups = "drop"
   )
 
-average_general_data_table 
-```
-
-    ## # A tibble: 108 × 5
-    ##    Category  label        sort_num is_fall `Avg Meeting Exceeding`
-    ##    <chr>     <fct>           <dbl> <lgl>                     <dbl>
-    ##  1 Cognitive Fall 18-19        181 TRUE                       74.4
-    ##  2 Cognitive Winter 18-19      182 FALSE                      85.1
-    ##  3 Cognitive Spring 18-19      183 FALSE                      92.5
-    ##  4 Cognitive Fall 20-21        201 TRUE                       65.5
-    ##  5 Cognitive Winter 20-21      202 FALSE                      91.4
-    ##  6 Cognitive Spring 20-21      203 FALSE                      94.4
-    ##  7 Cognitive Fall 21-22        211 TRUE                       72.3
-    ##  8 Cognitive Winter 21-22      212 FALSE                      89.7
-    ##  9 Cognitive Spring 21-22      213 FALSE                      93.6
-    ## 10 Cognitive Fall 22-23        221 TRUE                       68.9
-    ## # ℹ 98 more rows
-
-``` r
 #plotting
 average_general_data_plot <- ggplot(average_general_data_table, aes(x = label, y = `Avg Meeting Exceeding`, group = Category)) +
   geom_line(size = 1) +
@@ -372,8 +353,17 @@ average_general_data_plot <- ggplot(average_general_data_table, aes(x = label, y
   annotate("rect", xmin="Fall 18-19", xmax="Fall 20-21", ymin = 40, ymax = 100, alpha = 0.1, fill = "red")+
   annotate("rect", xmin="Fall 18-19", xmax="Fall 21-22", ymin = 40, ymax = 100, alpha = 0.1, fill = "blue")+
   annotate("rect", xmin="Fall 21-22", xmax="Spring 24-25", ymin = 40, ymax = 100, alpha = 0.1, fill = "green")+
+  geom_text( 
+    aes(x = "Spring 18-19", y = 105, label = "Pre-COVID19"),
+    size = 2) +
+  geom_text( 
+    aes(x = "Spring 20-21", y = 105, label = "During-COVID19"),
+    size = 2) +
+  geom_text( 
+    aes(x = "Fall 23-24", y = 105, label = "Post-COVID19"),
+    size = 2) +
   facet_wrap(~ Category, ncol = 1) +
-  ylim(40, 100)+
+  ylim(40, 110)+
   labs(
     title = "Average % Meeting/Exceeding Over 6 School Years",
     subtitle = "by Category",
@@ -496,78 +486,51 @@ covid_plot
 ![](proposal_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
 ``` r
-all_years_raw <- list(
-  X2020_2021,
-  X2021_2022,
-  X2022_2023,
-  X2023_2024,
-  X2024_2025
-)
-numeric_cols <- c("# Children",
-                  "# Meeting / Exceeding",
-                  "% Meeting / Exceeding")
+all_year <- general_data_table |>
+  mutate(IEP = na_if(IEP, "N/A")) |>
+  filter(!is.na(IEP))
 
-all_years_raw_fixed <- map(
-  all_years_raw,
-  ~ .x %>%
-    mutate(
-      across(
-        any_of(numeric_cols),
-        ~ as.numeric(gsub("[^0-9.]", "", as.character(.)))
-      )
-    )
-)
-all_years <- bind_rows(all_years_raw_fixed)
+IEP_data <- all_year |>
+  mutate(is_fall = (`season` == "Fall"))
 
-all_years <- all_years |>
-  mutate(
-    IEP = na_if(IEP, "N/A")
-  )
+IEP_data
+```
 
-IEP_data <- all_years |>
-  filter(!is.na(IEP)) |>
-  group_by(Category, IEP, `Time Period`) |>
-  summarise(
-    n_children = sum(`# Children`, na.rm = TRUE),
-    n_meeting  = sum(`# Meeting / Exceeding`, na.rm = TRUE),
-    .groups = "drop"
-  ) |>
-  mutate(
-    pct_meeting = 100 * n_meeting / n_children
-  ) |>
-  filter(!is.na(pct_meeting)) |>
-  mutate(
-    TimePeriod_f = factor(
-      `Time Period`,
-      levels = sort(unique(`Time Period`))
-    )
-  )
+    ## # A tibble: 324 × 12
+    ##    Category         `# Children` Age   IEP   `# Meeting / Exceeding`
+    ##    <chr>                   <dbl> <chr> <chr>                   <dbl>
+    ##  1 Social-Emotional            7 3-4   Yes                         5
+    ##  2 Social-Emotional           19 4-5   Yes                         8
+    ##  3 Social-Emotional           30 3-4   No                         26
+    ##  4 Social-Emotional           65 4-5   No                         48
+    ##  5 Physical                    8 3-4   Yes                         7
+    ##  6 Physical                   21 4-5   Yes                        15
+    ##  7 Physical                   30 3-4   No                         28
+    ##  8 Physical                   67 4-5   No                         58
+    ##  9 Language                    8 3-4   Yes                         3
+    ## 10 Language                   21 4-5   Yes                        12
+    ## # ℹ 314 more rows
+    ## # ℹ 7 more variables: `% Meeting / Exceeding` <dbl>, `Time Period` <chr>,
+    ## #   year <chr>, season <chr>, label <fct>, sort_num <dbl>, is_fall <lgl>
 
-IEP_data <- IEP_data |>
-  mutate(
-    Season = str_extract(`Time Period`, "^(Fall|Winter|Spring)"))
-
-IEP_data <- IEP_data |>
-  mutate(is_fall = Season == "Fall")
-
-ggplot(
+``` r
+iep_graph <- ggplot(
   IEP_data,
-  aes(x = TimePeriod_f, y = pct_meeting,
-      fill = IEP, group = IEP)
+  aes(x = `label`, y = `% Meeting / Exceeding`, fill = IEP, group = IEP)
 ) +
   geom_area(position = "identity", alpha = 0.4) +
   geom_line(aes(color = IEP), size = 1) +
   geom_point(aes(size = ifelse(is_fall, 4, NA)), shape = 21 , stroke = 0) +
-  geom_vline(xintercept = "Fall 2022/2023") +
+  geom_vline(xintercept = "Fall 22-23") +
   geom_text( 
-    aes(x = "Fall 2023/2024", y = 105, label = "During-COVID19"),
+    aes(x = "Fall 23-24", y = 105, label = "During-COVID19"),
     size = 2) +
   geom_text( 
-    aes(x = "Spring 2020/2021", y = 105, label = "During-COVID19"),
+    aes(x = "Spring 20-21", y = 105, label = "During-COVID19"),
     size = 2) +
   facet_wrap(~ Category) +
   labs(
-    title = "Aacdemic Performances by Different IEP status During and Post COVID-19",
+    title = "Academic Performances by Different IEP status During and Post COVID-19",
     x = "Season / School Year",
     y = "% Meeting / Exceeding (%)",
     subtitle = "Grouped by Category ",
@@ -581,9 +544,40 @@ ggplot(
     legend.position = "bottom",
     strip.text = element_text(face = "bold")
   )
+
+iep_graph
 ```
 
-    ## Warning: Removed 72 rows containing missing values or values outside the scale range
+    ## Warning: Removed 1 row containing non-finite outside the scale range
+    ## (`stat_align()`).
+
+    ## Warning: Removed 217 rows containing missing values or values outside the scale range
     ## (`geom_point()`).
 
 ![](proposal_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+
+``` r
+ggsave("iep_impact.png", iep_graph, width = 15, height = 10, dpi = 300)
+```
+
+    ## Warning: Removed 1 row containing non-finite outside the scale range (`stat_align()`).
+    ## Removed 217 rows containing missing values or values outside the scale range
+    ## (`geom_point()`).
+
+
+
+    all_year <- general_data_table |>
+      mutate(IEP = na_if(IEP, "N/A")) |>
+      filter(!is.na(IEP))
+
+    IEP_data <- all_year |>
+      filter(!is.na(IEP)) |>
+      group_by(Category, IEP, `Time Period`) |>
+      summarise(
+        n_children = sum(`# Children`, na.rm = TRUE),
+        n_meeting  = sum(`# Meeting / Exceeding`, na.rm = TRUE),
+        .groups = "drop"
+      ) |>
+      mutate(pct_meeting = 100 * n_meeting / n_children
+      ) |>
+      filter(!is.na(pct_meeting))

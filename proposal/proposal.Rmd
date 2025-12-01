@@ -345,6 +345,7 @@ IEP_data <- all_year |>
 
 IEP_data
 
+
 iep_graph <- ggplot(
   IEP_data,
   aes(x = `label`, y = `% Meeting / Exceeding`, fill = IEP, group = IEP)
@@ -379,5 +380,24 @@ iep_graph <- ggplot(
 iep_graph
 
 ggsave("iep_impact.png", iep_graph, width = 15, height = 10, dpi = 300)
+```
+```
+
+
+all_year <- general_data_table |>
+  mutate(IEP = na_if(IEP, "N/A")) |>
+  filter(!is.na(IEP))
+
+IEP_data <- all_year |>
+  filter(!is.na(IEP)) |>
+  group_by(Category, IEP, `Time Period`) |>
+  summarise(
+    n_children = sum(`# Children`, na.rm = TRUE),
+    n_meeting  = sum(`# Meeting / Exceeding`, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  mutate(pct_meeting = 100 * n_meeting / n_children
+  ) |>
+  filter(!is.na(pct_meeting))
 ```
 
