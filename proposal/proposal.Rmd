@@ -241,7 +241,7 @@ average_general_data_plot <- ggplot(average_general_data_table, aes(x = label, y
   geom_text( 
     aes(x = "Fall 23-24", y = 105, label = "Post-COVID19"),
     size = 2) +
-  facet_wrap(~ Category, ncol = 1) +
+  facet_wrap(~ Category, ncol = 2) +
   ylim(40, 110)+
   labs(
     title = "Average % Meeting/Exceeding Over 6 School Years",
@@ -258,7 +258,7 @@ average_general_data_plot <- ggplot(average_general_data_table, aes(x = label, y
 average_general_data_plot
 
 #saving
-ggsave("average_general_plot.png", average_general_data_plot, width = 10, height = 15, dpi = 300)
+ggsave("average_general_plot.png", average_general_data_plot, width = 15, height = 10, dpi = 300)
 ```
 
 
