@@ -509,10 +509,10 @@ iep_graph <- ggplot(
   geom_point(aes(size = ifelse(is_fall, 4, NA)), shape = 21 , stroke = 0) +
   geom_vline(xintercept = "Fall 22-23") +
   geom_text( 
-    aes(x = "Fall 23-24", y = 105, label = "During-COVID19"),
+    aes(x = "Winter 23-24", y = 110, label = "Post-COVID19"),
     size = 2) +
   geom_text( 
-    aes(x = "Spring 20-21", y = 105, label = "Post-COVID19"),
+    aes(x = "Fall 21-22", y = 110, label = "During-COVID19"),
     size = 2) +
   facet_wrap(~ Category) +
   labs(
@@ -526,7 +526,7 @@ iep_graph <- ggplot(
   scale_size_identity(guide = "none") +
   theme_minimal() +
   theme(
-    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.text.x = element_text(angle = 90, hjust = 1),
     legend.position = "bottom",
     strip.text = element_text(face = "bold")
   )
