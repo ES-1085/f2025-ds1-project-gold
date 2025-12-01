@@ -493,30 +493,16 @@ all_year <- general_data_table |>
 IEP_data <- all_year |>
   mutate(is_fall = (`season` == "Fall"))
 
-IEP_data
-```
+IEP_data <- IEP_data |>
+  group_by(Category, label, sort_num, is_fall, IEP) |>
+  summarise(
+    `Avg IEP Meeting Exceeding` = mean(`% Meeting / Exceeding`, na.rm = TRUE),
+    .groups = "drop"
+  )
 
-    ## # A tibble: 324 × 12
-    ##    Category         `# Children` Age   IEP   `# Meeting / Exceeding`
-    ##    <chr>                   <dbl> <chr> <chr>                   <dbl>
-    ##  1 Social-Emotional            7 3-4   Yes                         5
-    ##  2 Social-Emotional           19 4-5   Yes                         8
-    ##  3 Social-Emotional           30 3-4   No                         26
-    ##  4 Social-Emotional           65 4-5   No                         48
-    ##  5 Physical                    8 3-4   Yes                         7
-    ##  6 Physical                   21 4-5   Yes                        15
-    ##  7 Physical                   30 3-4   No                         28
-    ##  8 Physical                   67 4-5   No                         58
-    ##  9 Language                    8 3-4   Yes                         3
-    ## 10 Language                   21 4-5   Yes                        12
-    ## # ℹ 314 more rows
-    ## # ℹ 7 more variables: `% Meeting / Exceeding` <dbl>, `Time Period` <chr>,
-    ## #   year <chr>, season <chr>, label <fct>, sort_num <dbl>, is_fall <lgl>
-
-``` r
 iep_graph <- ggplot(
   IEP_data,
-  aes(x = `label`, y = `% Meeting / Exceeding`, fill = IEP, group = IEP)
+  aes(x = `label`, y = `Avg IEP Meeting Exceeding`, fill = IEP, group = IEP)
 ) +
   geom_area(position = "identity", alpha = 0.4) +
   geom_line(aes(color = IEP), size = 1) +
@@ -526,7 +512,7 @@ iep_graph <- ggplot(
     aes(x = "Fall 23-24", y = 105, label = "During-COVID19"),
     size = 2) +
   geom_text( 
-    aes(x = "Spring 20-21", y = 105, label = "During-COVID19"),
+    aes(x = "Spring 20-21", y = 105, label = "Post-COVID19"),
     size = 2) +
   facet_wrap(~ Category) +
   labs(
@@ -548,10 +534,7 @@ iep_graph <- ggplot(
 iep_graph
 ```
 
-    ## Warning: Removed 1 row containing non-finite outside the scale range
-    ## (`stat_align()`).
-
-    ## Warning: Removed 217 rows containing missing values or values outside the scale range
+    ## Warning: Removed 120 rows containing missing values or values outside the scale range
     ## (`geom_point()`).
 
 ![](proposal_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
@@ -560,24 +543,5 @@ iep_graph
 ggsave("iep_impact.png", iep_graph, width = 15, height = 10, dpi = 300)
 ```
 
-    ## Warning: Removed 1 row containing non-finite outside the scale range (`stat_align()`).
-    ## Removed 217 rows containing missing values or values outside the scale range
+    ## Warning: Removed 120 rows containing missing values or values outside the scale range
     ## (`geom_point()`).
-
-
-
-    all_year <- general_data_table |>
-      mutate(IEP = na_if(IEP, "N/A")) |>
-      filter(!is.na(IEP))
-
-    IEP_data <- all_year |>
-      filter(!is.na(IEP)) |>
-      group_by(Category, IEP, `Time Period`) |>
-      summarise(
-        n_children = sum(`# Children`, na.rm = TRUE),
-        n_meeting  = sum(`# Meeting / Exceeding`, na.rm = TRUE),
-        .groups = "drop"
-      ) |>
-      mutate(pct_meeting = 100 * n_meeting / n_children
-      ) |>
-      filter(!is.na(pct_meeting))

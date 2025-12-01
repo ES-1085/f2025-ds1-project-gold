@@ -343,12 +343,16 @@ all_year <- general_data_table |>
 IEP_data <- all_year |>
   mutate(is_fall = (`season` == "Fall"))
 
-IEP_data
-
+IEP_data <- IEP_data |>
+  group_by(Category, label, sort_num, is_fall, IEP) |>
+  summarise(
+    `Avg IEP Meeting Exceeding` = mean(`% Meeting / Exceeding`, na.rm = TRUE),
+    .groups = "drop"
+  )
 
 iep_graph <- ggplot(
   IEP_data,
-  aes(x = `label`, y = `% Meeting / Exceeding`, fill = IEP, group = IEP)
+  aes(x = `label`, y = `Avg IEP Meeting Exceeding`, fill = IEP, group = IEP)
 ) +
   geom_area(position = "identity", alpha = 0.4) +
   geom_line(aes(color = IEP), size = 1) +
@@ -358,7 +362,7 @@ iep_graph <- ggplot(
     aes(x = "Fall 23-24", y = 105, label = "During-COVID19"),
     size = 2) +
   geom_text( 
-    aes(x = "Spring 20-21", y = 105, label = "During-COVID19"),
+    aes(x = "Spring 20-21", y = 105, label = "Post-COVID19"),
     size = 2) +
   facet_wrap(~ Category) +
   labs(
@@ -381,23 +385,3 @@ iep_graph
 
 ggsave("iep_impact.png", iep_graph, width = 15, height = 10, dpi = 300)
 ```
-```
-
-
-all_year <- general_data_table |>
-  mutate(IEP = na_if(IEP, "N/A")) |>
-  filter(!is.na(IEP))
-
-IEP_data <- all_year |>
-  filter(!is.na(IEP)) |>
-  group_by(Category, IEP, `Time Period`) |>
-  summarise(
-    n_children = sum(`# Children`, na.rm = TRUE),
-    n_meeting  = sum(`# Meeting / Exceeding`, na.rm = TRUE),
-    .groups = "drop"
-  ) |>
-  mutate(pct_meeting = 100 * n_meeting / n_children
-  ) |>
-  filter(!is.na(pct_meeting))
-```
-
