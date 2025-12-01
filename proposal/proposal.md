@@ -494,3 +494,96 @@ covid_plot
 ```
 
 ![](proposal_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+
+``` r
+all_years_raw <- list(
+  X2020_2021,
+  X2021_2022,
+  X2022_2023,
+  X2023_2024,
+  X2024_2025
+)
+numeric_cols <- c("# Children",
+                  "# Meeting / Exceeding",
+                  "% Meeting / Exceeding")
+
+all_years_raw_fixed <- map(
+  all_years_raw,
+  ~ .x %>%
+    mutate(
+      across(
+        any_of(numeric_cols),
+        ~ as.numeric(gsub("[^0-9.]", "", as.character(.)))
+      )
+    )
+)
+all_years <- bind_rows(all_years_raw_fixed)
+
+all_years <- all_years |>
+  mutate(
+    IEP = na_if(IEP, "N/A")
+  )
+
+IEP_data <- all_years |>
+  filter(!is.na(IEP)) |>
+  group_by(Category, IEP, `Time Period`) |>
+  summarise(
+    n_children = sum(`# Children`, na.rm = TRUE),
+    n_meeting  = sum(`# Meeting / Exceeding`, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  mutate(
+    pct_meeting = 100 * n_meeting / n_children
+  ) |>
+  filter(!is.na(pct_meeting)) |>
+  mutate(
+    TimePeriod_f = factor(
+      `Time Period`,
+      levels = sort(unique(`Time Period`))
+    )
+  )
+
+IEP_data <- IEP_data |>
+  mutate(
+    Season = str_extract(`Time Period`, "^(Fall|Winter|Spring)"))
+
+IEP_data <- IEP_data |>
+  mutate(is_fall = Season == "Fall")
+
+ggplot(
+  IEP_data,
+  aes(x = TimePeriod_f, y = pct_meeting,
+      fill = IEP, group = IEP)
+) +
+  geom_area(position = "identity", alpha = 0.4) +
+  geom_line(aes(color = IEP), size = 1) +
+  geom_point(aes(size = ifelse(is_fall, 4, NA)), shape = 21 , stroke = 0) +
+  geom_vline(xintercept = "Fall 2022/2023") +
+  geom_text( 
+    aes(x = "Fall 2023/2024", y = 105, label = "During-COVID19"),
+    size = 2) +
+  geom_text( 
+    aes(x = "Spring 2020/2021", y = 105, label = "During-COVID19"),
+    size = 2) +
+  facet_wrap(~ Category) +
+  labs(
+    title = "Aacdemic Performances by Different IEP status During and Post COVID-19",
+    x = "Season / School Year",
+    y = "% Meeting / Exceeding (%)",
+    subtitle = "Grouped by Category ",
+    fill = "IEP Status",
+    color = "IEP Status"
+  ) +
+  scale_size_identity(guide = "none") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "bottom",
+    strip.text = element_text(face = "bold")
+  )
+```
+
+    ## Warning: Removed 72 rows containing missing values or values outside the scale range
+    ## (`geom_point()`).
+
+![](proposal_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
