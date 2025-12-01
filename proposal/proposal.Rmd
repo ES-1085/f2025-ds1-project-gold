@@ -223,8 +223,6 @@ average_general_data_table <- average_general_data_table |>
     .groups = "drop"
   )
 
-average_general_data_table 
-
 #plotting
 average_general_data_plot <- ggplot(average_general_data_table, aes(x = label, y = `Avg Meeting Exceeding`, group = Category)) +
   geom_line(size = 1) +
@@ -234,8 +232,17 @@ average_general_data_plot <- ggplot(average_general_data_table, aes(x = label, y
   annotate("rect", xmin="Fall 18-19", xmax="Fall 20-21", ymin = 40, ymax = 100, alpha = 0.1, fill = "red")+
   annotate("rect", xmin="Fall 18-19", xmax="Fall 21-22", ymin = 40, ymax = 100, alpha = 0.1, fill = "blue")+
   annotate("rect", xmin="Fall 21-22", xmax="Spring 24-25", ymin = 40, ymax = 100, alpha = 0.1, fill = "green")+
+  geom_text( 
+    aes(x = "Spring 18-19", y = 105, label = "Pre-COVID19"),
+    size = 2) +
+  geom_text( 
+    aes(x = "Spring 20-21", y = 105, label = "During-COVID19"),
+    size = 2) +
+  geom_text( 
+    aes(x = "Fall 23-24", y = 105, label = "Post-COVID19"),
+    size = 2) +
   facet_wrap(~ Category, ncol = 1) +
-  ylim(40, 100)+
+  ylim(40, 110)+
   labs(
     title = "Average % Meeting/Exceeding Over 6 School Years",
     subtitle = "by Category",
@@ -329,109 +336,28 @@ covid_plot
 
 
 ```{r}
-all_year <- bind_rows(
-  #for each year we need to first convert our number of children, number of meeting/exceeding, and percentage of meeting/exceeding in numerit values and create a year column that would help us with sorting and labeling
-  X2018_2019 |>
-    mutate(
-      `# Children` = parse_number(as.character(`# Children`), na = c("N/A", "NA")), 
-      `# Meeting / Exceeding` = parse_number(as.character(`# Meeting / Exceeding`), na = c("N/A", "NA")), 
-      `% Meeting / Exceeding` = parse_number(as.character(`% Meeting / Exceeding`)), 
-      year = "18-19"), 
-  X2020_2021 |>
-    mutate(
-      `# Children` = parse_number(as.character(`# Children`), na = c("N/A", "NA")), 
-      `# Meeting / Exceeding` = parse_number(as.character(`# Meeting / Exceeding`), na = c("N/A", "NA")), 
-      `% Meeting / Exceeding` = parse_number(as.character(`% Meeting / Exceeding`)), 
-      year = "20-21"), 
-  X2021_2022|>
-    mutate(
-      `# Children` = parse_number(as.character(`# Children`), na = c("N/A", "NA")), 
-      `# Meeting / Exceeding` = parse_number(as.character(`# Meeting / Exceeding`), na = c("N/A", "NA")), 
-      `% Meeting / Exceeding` = parse_number(as.character(`% Meeting / Exceeding`)), 
-      year = "21-22"), 
-  X2022_2023|>
-    mutate(
-      `# Children` = parse_number(as.character(`# Children`), na = c("N/A", "NA")), 
-      `# Meeting / Exceeding` = parse_number(as.character(`# Meeting / Exceeding`), na = c("N/A", "NA")), 
-      `% Meeting / Exceeding` = parse_number(as.character(`% Meeting / Exceeding`)), 
-      year = "22-23"), 
-  X2023_2024|>
-    mutate(
-      `# Children` = parse_number(as.character(`# Children`), na = c("N/A", "NA")), 
-      `# Meeting / Exceeding` = parse_number(as.character(`# Meeting / Exceeding`), na = c("N/A", "NA")), 
-      `% Meeting / Exceeding` = parse_number(as.character(`% Meeting / Exceeding`), na = c("N/A", "NA", "#DIV/0!")), 
-      year = "23-24"), 
-  X2024_2025|>
-    mutate(
-      `# Children` = parse_number(as.character(`# Children`), na = c("N/A", "NA")), 
-      `# Meeting / Exceeding` = parse_number(as.character(`# Meeting / Exceeding`), na = c("N/A", "NA")), 
-      `% Meeting / Exceeding` = parse_number(as.character(`% Meeting / Exceeding`)), 
-      year = "24-25")
-  ) |>
-  #shortening and simplifying the label for each school year and trimester
-  mutate(
-    season = case_when(
-      str_detect(`Time Period`, "Fall") ~ "Fall",
-      str_detect(`Time Period`, "Winter") ~ "Winter",
-      str_detect(`Time Period`, "Spring") ~ "Spring"
-    ),
-    label = paste(season, year),
-    #sorting for chronological order taking the beginning of the school year and the code for each season (Fall - 1, Winter - 2, Spring - 3)
-    #e.g. Fall 2018-2019 -> 181, Winter 2021-2022 -> 212
-    sort_num = as.numeric(str_sub(year, 1, 2)) * 10 + match(season, c("Fall","Winter","Spring")) 
-  )
-#ordering our data chronologically
-general_data_table <- general_data_table |>
-  mutate(
-    label = fct_reorder(label, sort_num)
-  )
-
-
-all_year <- all_year |>
-  mutate(
-    IEP = na_if(IEP, "N/A"))
-
+all_year <- general_data_table |>
+  mutate(IEP = na_if(IEP, "N/A")) |>
+  filter(!is.na(IEP))
 
 IEP_data <- all_year |>
-  filter(!is.na(IEP)) |>
-  group_by(Category, IEP, `Time Period`) |>
-  summarise(
-    n_children = sum(`# Children`, na.rm = TRUE),
-    n_meeting  = sum(`# Meeting / Exceeding`, na.rm = TRUE),
-    .groups = "drop"
-  ) |>
-  mutate(
-    pct_meeting = 100 * n_meeting / n_children
-  ) |>
-  filter(!is.na(pct_meeting)) |>
-  mutate(
-    TimePeriod_f = factor(
-      `Time Period`,
-      levels = sort(unique(`Time Period`))
-    )
-  )
+  mutate(is_fall = (`season` == "Fall"))
 
-IEP_data <- IEP_data |>
-  mutate(
-    Season = str_extract(`Time Period`, "^(Fall|Winter|Spring)"))
+IEP_data
 
-IEP_data <- IEP_data |>
-  mutate(is_fall = Season == "Fall")
-
-ggplot(
+iep_graph <- ggplot(
   IEP_data,
-  aes(x = TimePeriod_f, y = pct_meeting,
-      fill = IEP, group = IEP)
+  aes(x = `label`, y = `% Meeting / Exceeding`, fill = IEP, group = IEP)
 ) +
   geom_area(position = "identity", alpha = 0.4) +
   geom_line(aes(color = IEP), size = 1) +
   geom_point(aes(size = ifelse(is_fall, 4, NA)), shape = 21 , stroke = 0) +
-  geom_vline(xintercept = "Fall 2022/2023") +
+  geom_vline(xintercept = "Fall 22-23") +
   geom_text( 
-    aes(x = "Fall 2023/2024", y = 105, label = "During-COVID19"),
+    aes(x = "Fall 23-24", y = 105, label = "During-COVID19"),
     size = 2) +
   geom_text( 
-    aes(x = "Spring 2020/2021", y = 105, label = "During-COVID19"),
+    aes(x = "Spring 20-21", y = 105, label = "During-COVID19"),
     size = 2) +
   facet_wrap(~ Category) +
   labs(
@@ -449,5 +375,9 @@ ggplot(
     legend.position = "bottom",
     strip.text = element_text(face = "bold")
   )
+
+iep_graph
+
+ggsave("iep_impact.png", iep_graph, width = 15, height = 10, dpi = 300)
 ```
 
