@@ -410,9 +410,7 @@ iep_graph <- ggplot(
     color = "IEP Status"
   ) +
   scale_size_identity(guide = "none") +
-<<<<<<< HEAD
   scale_color_manual(values = c("#51C168", "#5C57D8", "#FABA09"))+
-=======
   scale_color_manual(
     values = c(
       "No" = "lightsalmon", 
@@ -425,7 +423,6 @@ iep_graph <- ggplot(
       "Yes" = "seagreen3"
     ) 
   ) +
->>>>>>> c1b7f0fe811d5080f36fadddef897fc5285f8f28
   theme_minimal() +
   theme(
     axis.text.x = element_text(angle = 90, hjust = 1),
