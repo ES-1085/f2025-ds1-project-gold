@@ -104,19 +104,83 @@ ggplot(categorized_data_2018_2019, aes(x = `Time Period`, y = `% percentage`)) +
 
 Thanks to this graph, we can see how successful Promise Early Education was in categories like `Physical`. Moreover, we can see the growth of the students from the beggining (Fall) to the end of the school year (Winter and Sping), especially in categories like `Cognitive` and `Social-Emotional` where the percentage grew from around 50% to over 80%. 
 
-##### Facet Line Graph
-## First read the data
-```{r reading-cleaned-data}
+# Handout Work
+
+### Reading Data
+
+```{r reading-all-data}
 X2018_2019 <- read_excel("../data/ignore/2018-2019.xlsx")
 X2020_2021 <- read_excel("../data/ignore/2020-2021.xlsx")
 X2021_2022 <- read_excel("../data/ignore/2021-2022.xlsx")
 X2022_2023 <- read_excel("../data/ignore/2022-2023.xlsx")
 X2023_2024 <- read_excel("../data/ignore/2023-2024.xlsx")
 X2024_2025 <- read_excel("../data/ignore/2024-2025.xlsx")
-
 ```
 
+### Cleaning the imported data and ordering it chronologically 
 
+```{r cleaning-all-tables}
+general_data_table <- bind_rows(
+  #for each year we need to first convert our number of children, number of meeting/exceeding, and percentage of meeting/exceeding in numerit values and create a year column that would help us with sorting and labeling
+  X2018_2019 |>
+    mutate(
+      `# Children` = parse_number(as.character(`# Children`), na = c("N/A", "NA")), 
+      `# Meeting / Exceeding` = parse_number(as.character(`# Meeting / Exceeding`), na = c("N/A", "NA")), 
+      `% Meeting / Exceeding` = parse_number(as.character(`% Meeting / Exceeding`)), 
+      year = "18-19"), 
+  X2020_2021 |>
+    mutate(
+      `# Children` = parse_number(as.character(`# Children`), na = c("N/A", "NA")), 
+      `# Meeting / Exceeding` = parse_number(as.character(`# Meeting / Exceeding`), na = c("N/A", "NA")), 
+      `% Meeting / Exceeding` = parse_number(as.character(`% Meeting / Exceeding`)), 
+      year = "20-21"), 
+  X2021_2022|>
+    mutate(
+      `# Children` = parse_number(as.character(`# Children`), na = c("N/A", "NA")), 
+      `# Meeting / Exceeding` = parse_number(as.character(`# Meeting / Exceeding`), na = c("N/A", "NA")), 
+      `% Meeting / Exceeding` = parse_number(as.character(`% Meeting / Exceeding`)), 
+      year = "21-22"), 
+  X2022_2023|>
+    mutate(
+      `# Children` = parse_number(as.character(`# Children`), na = c("N/A", "NA")), 
+      `# Meeting / Exceeding` = parse_number(as.character(`# Meeting / Exceeding`), na = c("N/A", "NA")), 
+      `% Meeting / Exceeding` = parse_number(as.character(`% Meeting / Exceeding`)), 
+      year = "22-23"), 
+  X2023_2024|>
+    mutate(
+      `# Children` = parse_number(as.character(`# Children`), na = c("N/A", "NA")), 
+      `# Meeting / Exceeding` = parse_number(as.character(`# Meeting / Exceeding`), na = c("N/A", "NA")), 
+      `% Meeting / Exceeding` = parse_number(as.character(`% Meeting / Exceeding`), na = c("N/A", "NA", "#DIV/0!")), 
+      year = "23-24"), 
+  X2024_2025|>
+    mutate(
+      `# Children` = parse_number(as.character(`# Children`), na = c("N/A", "NA")), 
+      `# Meeting / Exceeding` = parse_number(as.character(`# Meeting / Exceeding`), na = c("N/A", "NA")), 
+      `% Meeting / Exceeding` = parse_number(as.character(`% Meeting / Exceeding`)), 
+      year = "24-25")
+  ) |>
+  #shortening and simplifying the label for each school year and trimester
+  mutate(
+    season = case_when(
+      str_detect(`Time Period`, "Fall") ~ "Fall",
+      str_detect(`Time Period`, "Winter") ~ "Winter",
+      str_detect(`Time Period`, "Spring") ~ "Spring"
+    ),
+    label = paste(season, year),
+    #sorting for chronological order taking the beginning of the school year and the code for each season (Fall - 1, Winter - 2, Spring - 3)
+    #e.g. Fall 2018-2019 -> 181, Winter 2021-2022 -> 212
+    sort_num = as.numeric(str_sub(year, 1, 2)) * 10 + match(season, c("Fall","Winter","Spring")) 
+  )
+#ordering our data chronologically
+general_data_table <- general_data_table |>
+  mutate(
+    label = fct_reorder(label, sort_num)
+  )
+```
+
+### General Data Plot
+
+<<<<<<< HEAD
 
 
 ```{r fig.alt = "This faceted line chart tracks the percentage of children meeting learning goals across six specific developmental categories: Cognitive, Language, Literacy, Mathematics, Physical, and Social-Emotional. The data covers the 2018–2019 to 2024–2025 school years and organizes time by season: Fall (F), Winter (W) and Spring (S) to highlight progress throughout each year. Each colored line represents a different age group:  Blue is 2–3 years, Pink is 3–4 years and Yellow is 4–5 years. The purpose of this chart is to visualize how the COVID-19 pandemic disrupted learning in these specific areas and to track how children's development has recovered over time."}
@@ -217,6 +281,184 @@ ggsave("covid_clear_plot.png", covid_plot, width = 20, height = 12, dpi = 300)
 covid_plot
 ```
 
+=======
+#### First Attempt
+We found this plot too complicated for the general analysis that we wanted to look at and also a bit similar to the second, more detailed plot we had in plan. 
+
+```{r general-plot-attempt-1}
+general_data_plot <- ggplot(general_data_table, aes(x = label, y = `% Meeting / Exceeding`, color = Age, group = Age)) +
+  geom_line(size = 1.1) +
+  geom_point(size = 2) +
+  facet_wrap(~ Category, ncol = 1) +
+  ylim(0, 100)+
+  labs(
+    title = "%Meeting/Exceeding Over 6 School Years",
+    subtitle = "by Category",
+    x = "School Year (Season–Year)",
+    y = "Percent Meeting/Exceeding"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+    strip.text = element_text(face = "bold"),
+    panel.spacing = unit(1, "lines")
+  )
+
+general_data_plot
+
+#saving
+ggsave("general_plot.png", general_data_plot, width = 10, height = 20, dpi = 300)
+```
+
+#### Second Attempt
+
+```{r general-plot-attempt-2}
+#creating a new column that would help us highlight the beginning of the school year
+average_general_data_table <- general_data_table |>
+  mutate(is_fall = (`season` == "Fall"))
+
+#calculating the average of all age groups' seasonal performance
+average_general_data_table <- average_general_data_table |>
+  group_by(Category, label, sort_num, is_fall) |>
+  summarise(
+    `Avg Meeting Exceeding` = mean(`% Meeting / Exceeding`, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+#plotting
+average_general_data_plot <- ggplot(average_general_data_table, aes(x = label, y = `Avg Meeting Exceeding`, group = Category)) +
+  geom_line(size = 1) +
+  geom_point(aes(size = ifelse(is_fall, 4, NA)), shape = 20, stroke = 0) +
+  geom_vline(xintercept = "Fall 20-21", linetype = "dotted", color = "red")+
+  geom_vline(xintercept = "Fall 21-22", linetype = "dotted", color = "red")+
+  annotate("rect", xmin="Fall 18-19", xmax="Fall 20-21", ymin = 40, ymax = 100, alpha = 0.1, fill = "red")+
+  annotate("rect", xmin="Fall 18-19", xmax="Fall 21-22", ymin = 40, ymax = 100, alpha = 0.1, fill = "blue")+
+  annotate("rect", xmin="Fall 21-22", xmax="Spring 24-25", ymin = 40, ymax = 100, alpha = 0.1, fill = "green")+
+  geom_text( 
+    aes(x = "Spring 18-19", y = 105, label = "Pre-COVID19"),
+    size = 2) +
+  geom_text( 
+    aes(x = "Spring 20-21", y = 105, label = "During-COVID19"),
+    size = 2) +
+  geom_text( 
+    aes(x = "Fall 23-24", y = 105, label = "Post-COVID19"),
+    size = 2) +
+  facet_wrap(~ Category, ncol = 2) +
+  ylim(40, 110)+
+  labs(
+    title = "Average % Meeting/Exceeding Over 6 School Years",
+    subtitle = "by Category",
+    x = "School Year (Season–Year)",
+    y = "Percent Meeting/Exceeding"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+    legend.position = "none"
+  )
+
+average_general_data_plot
+
+#saving
+ggsave("average_general_plot.png", average_general_data_plot, width = 15, height = 10, dpi = 300)
+```
+
+
+### Age Grouped Plot
+```{r fig.alt = "This faceted line chart tracks the percentage of children meeting learning goals across six specific developmental categories: Cognitive, Language, Literacy, Mathematics, Physical, and Social-Emotional. The data covers the 2018–2019 to 2024–2025 school years and organizes time by season: Fall (F), Winter (W) and Spring (S) to highlight progress throughout each year. Each colored line represents a different age group: Dark Blue is 0–1 years, Purple is 1–2 years, Pink is 2–3 years, Orange is 3–4 years and Yellow is 4–5 years. The purpose of this chart is to visualize how the COVID-19 pandemic disrupted learning in these specific areas and to track how children's development has recovered over time."}
+
+covid_plot <- ggplot(general_data_table, aes(reorder(label, sort_num), `% Meeting / Exceeding`, color = Age, group = Age)) +
+geom_line(size = 1.5, alpha = 0.8) +
+geom_point(size = 2.5, alpha = 0.9) +
+facet_wrap( ~ Category) +
+scale_color_viridis_d(option = "plasma") +
+ylim(0, 100) +
+labs(
+  title = "COVID-19 Impact on Age Groups", 
+  x = "Time Period", 
+  y = "Meeting / Exceeding Percentage", 
+  caption = "Data source: Promise Early Education Programs" ) +
+theme_minimal() +
+theme(
+  axis.text.x = element_text(angle = 90, size = 9),
+  strip.text = element_text(face = "bold"),
+  legend.position = "bottom"
+  )
+
+covid_plot
+
+#Saving the plot to .png
+ggsave("covid_clear_plot.png", covid_plot, width = 20, height = 12, dpi = 300)
+```
+
+As we see COVID-19 pandemic made it much harder for young children to learn and grow, especially in Social-Emotional and Language skills. Children stayed physically active and healthy but they struggled more with managing feelings and talking to others. The data reveals that the youngest children aged 0–2 have had the biggest drops in progress recently and that happens likely because they were born during stressful times with less social interaction. While they recover well during the school year, this data still highlights a strong need for summer bridge programs and focused social-emotional support to help them stay more on track and grow.
+
+```{r}
+# filter 0-1 age group and calculate percentages
+data <- general_data_table |>
+filter(Age != "0-1") |>
+drop_na() |>
+group_by(year, Category, Age) |>
+summarise(percent = sum(`# Meeting / Exceeding`) / sum(`# Children`) * 100, .groups = "drop") |>
+mutate( covid_period = case_when(
+year == "2019" ~ "Before COVID",
+year %in% c("2021", "2022") ~ "During COVID",
+TRUE ~ "After COVID"
+  ),
+covid_period = factor(covid_period, levels = c("Before COVID", "During COVID", "After COVID"))
+)
+>>>>>>> c656c680468f2eb349fa0bad7a0c596096d00d92
 
 
 
+
+```{r}
+all_year <- general_data_table |>
+  mutate(IEP = na_if(IEP, "N/A")) |>
+  filter(!is.na(IEP))
+
+IEP_data <- all_year |>
+  mutate(is_fall = (`season` == "Fall"))
+
+IEP_data <- IEP_data |>
+  group_by(Category, label, sort_num, is_fall, IEP) |>
+  summarise(
+    `Avg IEP Meeting Exceeding` = mean(`% Meeting / Exceeding`, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+iep_graph <- ggplot(
+  IEP_data,
+  aes(x = `label`, y = `Avg IEP Meeting Exceeding`, fill = IEP, group = IEP)
+) +
+  geom_area(position = "identity", alpha = 0.4) +
+  geom_line(aes(color = IEP), size = 1) +
+  geom_point(aes(size = ifelse(is_fall, 4, NA)), shape = 21 , stroke = 0) +
+  geom_vline(xintercept = "Fall 22-23") +
+  geom_text( 
+    aes(x = "Winter 23-24", y = 110, label = "Post-COVID19"),
+    size = 2) +
+  geom_text( 
+    aes(x = "Fall 21-22", y = 110, label = "During-COVID19"),
+    size = 2) +
+  facet_wrap(~ Category) +
+  labs(
+    title = "Academic Performances by Different IEP status During and Post COVID-19",
+    x = "Season / School Year",
+    y = "% Meeting / Exceeding (%)",
+    subtitle = "Grouped by Category ",
+    fill = "IEP Status",
+    color = "IEP Status"
+  ) +
+  scale_size_identity(guide = "none") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1),
+    legend.position = "bottom",
+    strip.text = element_text(face = "bold")
+  )
+
+iep_graph
+
+ggsave("iep_impact.png", iep_graph, width = 15, height = 10, dpi = 300)
+```
