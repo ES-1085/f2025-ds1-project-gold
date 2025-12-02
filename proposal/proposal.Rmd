@@ -117,128 +117,106 @@ X2024_2025 <- read_excel("../data/ignore/2024-2025.xlsx")
 ```
 
 
-```{r fig.alt = "This faceted line chart tracks the percentage of children meeting learning goals across six specific developmental categories: Cognitive, Language, Literacy, Mathematics, Physical, and Social-Emotional. The data covers the 2018–2019 to 2024–2025 school years and organizes time by season: Fall (F), Winter (W) and Spring (S) to highlight progress throughout each year. Each colored line represents a different age group: Dark Blue is 0–1 years, Purple is 1–2 years, Pink is 2–3 years, Orange is 3–4 years and Yellow is 4–5 years. The purpose of this chart is to visualize how the COVID-19 pandemic disrupted learning in these specific areas and to track how children's development has recovered over time."}
 
-# Merge data
-data <- bind_rows( X2018_2019 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
-mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), `# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), year = "18-19"),
+
+```{r fig.alt = "This faceted line chart tracks the percentage of children meeting learning goals across six specific developmental categories: Cognitive, Language, Literacy, Mathematics, Physical, and Social-Emotional. The data covers the 2018–2019 to 2024–2025 school years and organizes time by season: Fall (F), Winter (W) and Spring (S) to highlight progress throughout each year. Each colored line represents a different age group:  Blue is 2–3 years, Pink is 3–4 years and Yellow is 4–5 years. The purpose of this chart is to visualize how the COVID-19 pandemic disrupted learning in these specific areas and to track how children's development has recovered over time."}
+
+
+# Merge all data files
+data <- bind_rows(
+X2018_2019 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
+mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
+`# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
+  year = "2019"),
 X2020_2021 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
-mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), `# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), year = "20-21"), 
+mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
+  `# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
+    year = "2021"), 
 X2021_2022 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
-mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), `# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), year = "21-22"),
+mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
+`# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
+      year = "2022"),
 X2022_2023 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
-mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), `# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), year = "22-23"),
+mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
+    `# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
+       year = "2023"),
 X2023_2024 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
-mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), `# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), year = "23-24"),
+mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
+    `# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
+           year = "2024"),
 X2024_2025 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
-mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), `# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), year = "24-25")
-) |>
-  mutate(
+  mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
+    `# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
+     year = "2025")
+)
+
+# Clean data
+data <- data |>
+mutate(
+## Convert to numbers
+num_children = as.numeric(`# Children`),
+num_meeting = as.numeric(`# Meeting / Exceeding`),
+    
+## Find season (F, W, or S)
 season = case_when(
 str_detect(`Time Period`, "Fall") ~ "F",
 str_detect(`Time Period`, "Winter") ~ "W",
 str_detect(`Time Period`, "Spring") ~ "S"
-    ),
+  ),
+    
+#Create labels
 label = paste0(season, year),
-sort_num = as.numeric(str_sub(year, 1, 2)) * 10 + match(season, c("F","W","S"))
+    
+# Create sorting number
+year_num = as.numeric(substr(year, 1, 2)),
+season_num = ifelse(season == "F", 1, ifelse(season == "W", 2, 3)),
+sort_num = year_num * 10 + season_num
   ) |>
-drop_na() |>
-group_by(label, Category, Age, sort_num) |>
-summarise(percent = sum(`# Meeting / Exceeding`) / sum(`# Children`) * 100, .groups = "drop")
+  
 
-# I will make the plot and save it to covid_plot variable
-covid_plot <- ggplot(data, aes(reorder(label, sort_num), percent, color = Age, group = Age)) +
+  
+# Remove age groups 0-1 and 1-2
+filter(Age != "0-1", Age != "1-2") |>
+  
+# Calculate percentage
+group_by(label, Category, Age, sort_num, year) |>
+summarise(percent = sum(num_meeting) / sum(num_children) * 100, .groups = "drop")
+
+# Find first point of each year for each age and category
+first_points <- data |>
+group_by(Category, Age, year) |>
+filter(sort_num == min(sort_num))
+
+# Create plot
+covid_plot <- ggplot(data, aes(x = reorder(label, sort_num), y = percent, 
+color = Age, group = Age)) +
+geom_vline(xintercept = 3.5, color = "red", linetype = "dashed", size = 1) +
 geom_line(size = 1.5, alpha = 0.8) +
-geom_point(size = 2.5, alpha = 0.9) +
+geom_point(data = first_points, size = 2.5, alpha = 0.9) +
 facet_wrap(~Category) +
 scale_color_viridis_d(option = "plasma") +
-ylim(0, 100) +
-labs(title = "COVID-19 Impact on Age Groups", 
-x = "Time Period (F=Fall, W=Winter, S=Spring)", 
-y = "Meeting / Exceeding Percentage", 
-caption = "Data source: Promise Early Education Programs" ) +
+  ylim(0, 100) +  labs(
+title = "COVID-19 Impact on Age Groups",
+x = "Time Period (F=Fall, W=Winter, S=Spring)",
+y = "Meeting / Exceeding Percentage",
+caption = "Data source: Promise Early Education Programs\nRed dashed line indicates start of COVID-19 (Fall 2019)"
+  ) +
   
 theme_minimal() +
 theme(
 axis.text.x = element_text(angle = 90, size = 9),
 strip.text = element_text(face = "bold"),
-legend.position = "bottom"
-  )
-
-#Save
-ggsave("covid_clear_plot.png", covid_plot, width = 20, height = 12, dpi = 300)
-covid_plot
-```
-
-As we see COVID-19 pandemic made it much harder for young children to learn and grow, especially in Social-Emotional and Language skills. Children stayed physically active and healthy but they struggled more with managing feelings and talking to others. The data reveals that the youngest children aged 0–2 have had the biggest drops in progress recently and that happens likely because they were born during stressful times with less social interaction. While they recover well during the school year, this data still highlights a strong need for summer bridge programs and focused social-emotional support to help them stay more on track and grow.
-
-```{r}
-
-### Put together all the data from different years
-data <- bind_rows( X2018_2019 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
-`# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
-year = "2019"),
-X2020_2021 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
-mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
-`# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
-year = "2021"), 
-X2021_2022 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
-mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
-`# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
-year = "2022"),
-X2022_2023 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
-mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
-`# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
-year = "2023"),
-X2023_2024 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
-mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
-`# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
-year = "2024"),
-X2024_2025 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
-mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
-`# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
-year = "2025")
-)
-
-# filter 0-1 age group and calculate percentages
-data <- data |>
-filter(Age != "0-1") |>
-drop_na() |>
-group_by(year, Category, Age) |>
-summarise(percent = sum(`# Meeting / Exceeding`) / sum(`# Children`) * 100, .groups = "drop") |>
-mutate( covid_period = case_when(
-year == "2019" ~ "Before COVID",
-year %in% c("2021", "2022") ~ "During COVID",
-TRUE ~ "After COVID"
-  ),
-covid_period = factor(covid_period, levels = c("Before COVID", "During COVID", "After COVID"))
-)
-
-## Heatmap
-covid_plot <- ggplot(data, aes(x = year, y = Age, fill = percent)) +
-geom_tile(color = "white", size = 0.5) +
-geom_text(aes(label = round(percent, 0)), color = "white", fontface = "bold", size = 3) +
-facet_grid(covid_period ~ Category, scales = "free_y", space = "free_y") +
-scale_fill_viridis_c(option = "plasma", begin = 0.1, end = 0.9) +
-labs(title = "COVID-19 Impact Heatmap: Child Development Across Age Groups",
-subtitle = "Darker colors = Higher performance | Numbers show percentage meeting/exceeding goals",
-x = "Year", y = "Age Group", fill = "% Meeting and Exceeding\nGoals",
-caption = "Data source: Promise Early Education Programs") +
-theme_minimal(base_size = 12) +
-theme(
-plot.title = element_text(face = "bold", size = 15, hjust = 0.5),
-plot.subtitle = element_text(size = 10, hjust = 0.5, color = "gray30", margin = margin(b = 10)),
-axis.text.x = element_text(angle = 0, hjust = 0.5, size = 9),
-axis.text.y = element_text(size = 10),
-strip.text = element_text(face = "bold", size = 10),
-legend.position = "right",
-legend.title = element_text(face = "bold", size = 10),
-panel.grid = element_blank(),
-plot.caption = element_text(size = 8, color = "gray50", hjust = 1)
+legend.position = "bottom",
+plot.caption = element_text(hjust = 0, color = "red", face = "italic")
   )
 
 # Save png
-ggsave("covid_impact_heatmap.png", covid_plot, width = 14, height = 10, dpi = 300)
+ggsave("covid_clear_plot.png", covid_plot, width = 20, height = 12, dpi = 300)
+
+
 covid_plot
 ```
+
+
+
 
