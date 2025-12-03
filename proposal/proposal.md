@@ -348,11 +348,11 @@ average_general_data_table <- average_general_data_table |>
 average_general_data_plot <- ggplot(average_general_data_table, aes(x = label, y = `Avg Meeting Exceeding`, group = Category)) +
   geom_line(size = 1) +
   geom_point(aes(size = ifelse(is_fall, 4, NA)), shape = 20, stroke = 0) +
-  geom_vline(xintercept = "Fall 20-21", linetype = "dotted", color = "red")+
-  geom_vline(xintercept = "Fall 21-22", linetype = "dotted", color = "red")+
-  annotate("rect", xmin="Fall 18-19", xmax="Fall 20-21", ymin = 40, ymax = 100, alpha = 0.1, fill = "red")+
-  annotate("rect", xmin="Fall 18-19", xmax="Fall 21-22", ymin = 40, ymax = 100, alpha = 0.1, fill = "blue")+
-  annotate("rect", xmin="Fall 21-22", xmax="Spring 24-25", ymin = 40, ymax = 100, alpha = 0.1, fill = "green")+
+  geom_vline(xintercept = "Fall 20-21", linetype = "dotted", color = "#51C168")+
+  geom_vline(xintercept = "Fall 21-22", linetype = "dotted", color = "#51C168")+
+  annotate("rect", xmin="Fall 18-19", xmax="Fall 20-21", ymin = 40, ymax = 100, alpha = 0.1, fill = "#E7913E")+
+  annotate("rect", xmin="Fall 18-19", xmax="Fall 21-22", ymin = 40, ymax = 100, alpha = 0.1, fill = "#5C57D8")+
+  annotate("rect", xmin="Fall 21-22", xmax="Spring 24-25", ymin = 40, ymax = 100, alpha = 0.1, fill = "#FABA09")+
   geom_text( 
     aes(x = "Spring 18-19", y = 105, label = "Pre-COVID19"),
     size = 2) +
@@ -365,10 +365,10 @@ average_general_data_plot <- ggplot(average_general_data_table, aes(x = label, y
   facet_wrap(~ Category, ncol = 2) +
   ylim(40, 110)+
   labs(
-    title = "Average % Meeting/Exceeding Over 6 School Years",
-    subtitle = "by Category",
+    title = "Average Performance",
+    subtitle = "by Category, for all ages",
     x = "School Year (Season–Year)",
-    y = "Percent Meeting/Exceeding"
+    y = "% Meeting / Exceeding"
   ) +
   theme_minimal(base_size = 14) +
   theme(
@@ -447,25 +447,24 @@ drop_na()
 covid_plot <- ggplot(data, aes(reorder(label, sort_num), percent, color = Age, group = Age)) +
 # Add red background highlight for COVID period (Fall 2019 to Spring 2020)
 annotate("rect", xmin = 3.5, xmax = 6.5, ymin = 0, ymax = 100, 
-           fill = "red", alpha = 0.1) +
+           fill = "#51C168", alpha = 0.1) +
 ## Add vertical red line at start of COVID
-geom_vline(xintercept = 3.5, color = "red", linetype = "dashed", size = 1) +
+geom_vline(xintercept = 3.5, color = "#51C168", linetype = "dashed", size = 1) +
 geom_line(size = 1.5, alpha = 0.8) +
 geom_point(data = data |> group_by(Category, Age, year) |> filter(sort_num == min(sort_num)), 
     size = 2.5, alpha = 0.9) +
 facet_wrap(~Category) +
-scale_color_viridis_d(option = "plasma") +
+scale_color_manual(values = c("#51C168", "#5C57D8", "#FABA09")) +
 ylim(0, 100) +
 labs(title = "COVID-19 Impact on Age Groups", 
-x = "Time Period (F=Fall, W=Winter, S=Spring)", 
-y = "Meeting / Exceeding Percentage", 
-  caption = "Data source: Promise Early Education Programs\nRed shaded area indicates COVID-19 period (Fall 2019 - Spring 2020)") +
+x = "School Year (Season–Year)", 
+y = "% Meeting / Exceeding") +
 theme_minimal() +
 theme(
 axis.text.x = element_text(angle = 90, size = 9),
 strip.text = element_text(face = "bold"),
 legend.position = "bottom",
-plot.caption = element_text(hjust = 0, color = "red", face = "italic")
+plot.caption = element_text(hjust = 0, color = "#51C168", face = "italic")
   )
 
 #Save Png
@@ -524,23 +523,24 @@ iep_graph <- ggplot(
   geom_area(position = "identity", alpha = 0.4) +
   geom_line(aes(color = IEP), size = 1) +
   geom_point(aes(size = ifelse(is_fall, 4, NA)), shape = 21 , stroke = 0) +
-  geom_vline(xintercept = "Fall 22-23") +
+  geom_vline(xintercept = "Fall 21-22") +
   geom_text( 
-    aes(x = "Winter 23-24", y = 110, label = "Post-COVID19"),
-    size = 2) +
+    aes(x = "Spring 22-23", y = 110, label = "Post-COVID19"),
+    size = 1.5) +
   geom_text( 
-    aes(x = "Fall 21-22", y = 110, label = "During-COVID19"),
-    size = 2) +
+    aes(x = "Winter 20-21", y = 110, label = "During-COVID19"),
+    size = 1.5) +
   facet_wrap(~ Category) +
   labs(
     title = "Academic Performances by Different IEP status During and Post COVID-19",
-    x = "Season / School Year",
-    y = "% Meeting / Exceeding (%)",
+    x = "School Year (Season–Year)",
+    y = "% Meeting / Exceeding",
     subtitle = "Grouped by Category ",
     fill = "IEP Status",
     color = "IEP Status"
   ) +
   scale_size_identity(guide = "none") +
+  scale_color_manual(values = c("#51C168", "#5C57D8", "#FABA09"))+
   scale_color_manual(
     values = c(
       "No" = "lightsalmon", 
@@ -559,7 +559,12 @@ iep_graph <- ggplot(
     legend.position = "bottom",
     strip.text = element_text(face = "bold")
   )
+```
 
+    ## Scale for colour is already present.
+    ## Adding another scale for colour, which will replace the existing scale.
+
+``` r
 iep_graph
 ```
 
