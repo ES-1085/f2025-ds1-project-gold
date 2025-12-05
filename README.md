@@ -1,6 +1,6 @@
 Promise Early Education: Tracking COVID-19 Impact Across Age and IEP StatuesProject title
 ================
-by Gold Analyst (Mekkawy Mohamed, Razva Negru, Nisan Ozmert)
+by Gold Analyst (Mekkawy Mohamed, Razvan Negru, Nisan Ozmert)
 
 ## Summary
 
