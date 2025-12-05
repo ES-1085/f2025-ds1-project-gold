@@ -113,34 +113,9 @@ general_data_table <- general_data_table |>
 
 ## Plots
 
-### ggsave example for saving plots
-
-```{r starwars ggsave example}
-p1 <- starwars |>
-  filter(mass < 1000, 
-         species %in% c("Human", "Cerean", "Pau'an", "Droid", "Gungan")) |>
-  ggplot() +
-  geom_point(aes(x = mass, 
-                 y = height, 
-                 color = species)) +
-  labs(x = "Weight (kg)", 
-       y = "Height (m)",
-       color = "Species",
-       title = "Weight and Height of Select Starwars Species",
-       caption = paste("This data comes from the starwars api: https://swapi.py43.com"))
-
-
-ggsave("example-starwars.png", width = 4, height = 4)
-
-ggsave("example-starwars-wide.png", width = 6, height = 4)
-```
-
-
-
 ### Plot 1: Average performance
 
 #### First General Data Attempt
-
 
 
 ```{r first-general-graph-attempt}
@@ -226,65 +201,8 @@ ggsave("average_general_plot.png", average_general_data_plot, width = 15, height
 
 
 ### Plot 2: IEP 
-#### Combine Data Sets
-```{r}
-all_years_raw <- list(
-  X2020_2021,
-  X2021_2022,
-  X2022_2023,
-  X2023_2024,
-  X2024_2025
-)
-numeric_cols <- c("# Children",
-                  "# Meeting / Exceeding",
-                  "% Meeting / Exceeding")
 
-all_years_raw_fixed <- map(
-  all_years_raw,
-  ~ .x %>%
-    mutate(
-      across(
-        any_of(numeric_cols),
-        ~ as.numeric(gsub("[^0-9.]", "", as.character(.)))
-      )
-    )
-)
-all_years <- bind_rows(all_years_raw_fixed)
-
-all_years <- all_years |>
-  mutate(
-    IEP = na_if(IEP, "N/A")
-  )
-
-```
-
-#### IEP Dataset
-```{r}
-IEP_data <- all_years |>
-  filter(!is.na(IEP)) |>
-  group_by(Category, IEP, `Time Period`) |>
-  summarise(
-    n_children = sum(`# Children`, na.rm = TRUE),
-    n_meeting  = sum(`# Meeting / Exceeding`, na.rm = TRUE),
-    .groups = "drop"
-  ) |>
-  mutate(
-    pct_meeting = 100 * n_meeting / n_children
-  ) |>
-  filter(!is.na(pct_meeting)) |>
-  mutate(
-    TimePeriod_f = factor(
-      `Time Period`,
-      levels = sort(unique(`Time Period`))
-    )
-  )
-
-IEP_data <- IEP_data |>
-  mutate(
-    Season = str_extract(`Time Period`, "^(Fall|Winter|Spring)"))
-
-```
-
+Before startign work on IEP graph, we have crated another dataset using general_data_table. To create the IEP_data we first mutate datasets that has N/A as IPE, and then we have calculated the mean % Meeting / Exceeding for eahc trimester in every year.
 ```{r}
 all_year <- general_data_table |>
   mutate(IEP = na_if(IEP, "N/A")) |>
@@ -299,7 +217,16 @@ IEP_data <- IEP_data |>
     `Avg IEP Meeting Exceeding` = mean(`% Meeting / Exceeding`, na.rm = TRUE),
     .groups = "drop"
   )
+```
 
+
+After creating IEP data, we have created a 
+
+```{r}
+
+```
+
+```{r}
 iep_graph <- ggplot(
   IEP_data,
   aes(x = `label`, y = `Avg IEP Meeting Exceeding`, fill = IEP, group = IEP)
