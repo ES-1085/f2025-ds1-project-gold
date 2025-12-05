@@ -129,6 +129,12 @@ general_data_plot
 
 ![](memo_files/figure-gfm/first-general-graph-attempt-1.png)<!-- -->
 
+We found this graph to complicated to interpret. Since we want to look
+at age groups through a different graph, we decided to use a
+visualization that generalizes performances for all the students the NGO
+works with. We also want to underline the start of a school year and the
+3 key periods we analyzes: Pre, During, Post-COVID.
+
 #### Cleaning data for the Average Plot
 
 Creating a new column that would help us highlight the beginning of the
@@ -276,7 +282,7 @@ iep_graph
     ## Warning: Removed 120 rows containing missing values or values outside the scale range
     ## (`geom_point()`).
 
-![](memo_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](memo_files/figure-gfm/iep-first-try-1.png)<!-- -->
 
 ``` r
 ggsave("iep_impact.png", iep_graph, width = 15, height = 10, dpi = 300)
@@ -342,7 +348,7 @@ iep_graph
     ## Warning: Removed 120 rows containing missing values or values outside the scale range
     ## (`geom_point()`).
 
-![](memo_files/figure-gfm/iep-data-1.png)<!-- -->
+<img src="memo_files/figure-gfm/iep-data-1.png" alt="Faceted area charts displaying the percentage of children meeting or exceeding expectations(x-axis) across six developmental categories from Fall 2020 to Spring 2025 (y-axis). It highlights that the gap between IEP and non-IEP groups increases in post-COVID-19 years, with the IEP group consistently performing lower."  />
 
 ``` r
 ggsave("iep_impact.png", iep_graph, width = 15, height = 10, dpi = 300)
@@ -370,72 +376,16 @@ meeting learning goals in six areas: Cognitive, Language, Literacy,
 Math, Physical, and Social-Emotional. The chart will use data from the
 2018–2019 to the 2024–2025 school years and will show progress each Fall
 (F), Winter (W), and Spring (S). Each line will represent an age group
-ande the purpose is to show how COVID-19 affected children’s learning
-and how their development has changed and improved over time.
+and the purpose is to show how COVID-19 affected children’s learning and
+how their development has changed and improved over time.
 
-In the first part, we take the data from each school year and combine it
-into one dataset. For every year we select only the columns we need,
-change the values into proper numeric form and add a label to show which
-school year each row belongs to. We also include alternative text to
-help make our final plot more accessible for all users. By the end of
-this step, all six years of data are merged into one clean table that is
-ready for analysis.
+#### Cleaning data for the Average Plot
+
+We filter the very young age groups (0–1 and 1–2) as the chart will only
+focus on ages 2–3, 3–4, and 4–5.
 
 ``` r
-# 1. Combine all school-year data, convert to numeric, and tag with year
-data <- bind_rows(
-  X2018_2019 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
-    mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
-           `# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
-           year = "18-19"),
-  X2020_2021 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
-    mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
-           `# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
-           year = "20-21"), 
-  X2021_2022 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
-    mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
-           `# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
-           year = "21-22"),
-  X2022_2023 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
-    mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
-           `# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
-           year = "22-23"),
-  X2023_2024 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
-    mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
-           `# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
-           year = "23-24"),
-  X2024_2025 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
-    mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
-           `# Meeting / Exceeding` = suppressWarnings(as.numeric(`# Meeting / Exceeding`)), 
-           year = "24-25")
-)
-```
-
-In the second part, we get the data ready for graphing. We create short
-labels to show the season Fall (F), Winter (W), or Spring (S) and we
-combine each season with its year to make a clear timeline label. We
-also make a sorting number so the seasons stay in the correct order on
-the chart. Then we calculate the percentage of children meeting learning
-goals in each group. Finally we filter the very young age groups (0–1
-and 1–2) as the chart will only focus on ages 2–3, 3–4, and 4–5.
-
-``` r
-# 2. Add season labels, create ordered labels, compute percent, filter ages
-data <- data |>
-mutate(
-season = case_when(
-str_detect(`Time Period`, "Fall") ~ "F",
-str_detect(`Time Period`, "Winter") ~ "W",
-str_detect(`Time Period`, "Spring") ~ "S"
-    ),
-label = paste0(season, year),
-sort_num = as.numeric(str_sub(year, 1, 2)) * 10 + match(season, c("F","W","S"))
-  ) |>
-drop_na() |>
-group_by(label, Category, Age, sort_num, year, season) |>
-summarise(percent = sum(`# Meeting / Exceeding`) / sum(`# Children`) * 100, .groups = "drop")
-
-data <- data |>
+data <- general_data_table |>
 filter(Age != "0-1") |>
 drop_na()
 
@@ -452,9 +402,11 @@ After setting the colors and adjusting the labels and layout, we save
 the final chart as a PNG image and display it. This gives us a clear
 picture of how learning changed before, during and after the pandemic.
 
+#### Final Age grouped graph
+
 ``` r
 # I will make the plot and save it to covid_plot variable
-covid_plot <- ggplot(data, aes(reorder(label, sort_num), percent, color = Age, group = Age)) +
+covid_plot <- ggplot(data, aes(reorder(label, sort_num), `% Meeting / Exceeding`, color = Age, group = Age)) +
 # Add green background highlight for COVID period (Fall 2019 to Spring 2020)
 annotate("rect", xmin = 3.5, xmax = 6.5, ymin = 0, ymax = 100, 
            fill = "#51C168", alpha = 0.1) +
@@ -482,7 +434,7 @@ ggsave("covid_clear_plot.png", covid_plot, width = 20, height = 12, dpi = 300)
 covid_plot
 ```
 
-![](memo_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+<img src="memo_files/figure-gfm/age-final-plot-1.png" alt="This faceted line chart tracks the percentage of children meeting learning goals across six specific developmental categories: Cognitive, Language, Literacy, Mathematics, Physical, and Social-Emotional. The data covers the 2018–2019 to 2024–2025 school years and organizes time by season: Fall (F), Winter (W) and Spring (S) to highlight progress throughout each year. Each colored line represents a different age group:  Blue is 2–3 years, Pink is 3–4 years and Yellow is 4–5 years. The purpose of this chart is to visualize how the COVID-19 pandemic disrupted learning in these specific areas and to track how children's development has recovered over time."  />
 
 Our age group plot here examines how children of different age groups
 were impacted by COVID-19 across six developmental categories. It tracks
