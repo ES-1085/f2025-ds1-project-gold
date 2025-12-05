@@ -1,6 +1,6 @@
 Promise Early Education: Tracking COVID-19 Impact Across Age and IEP StatuesProject title
 ================
-by Gold Analyst
+by Gold Analyst (Mekkawy Mohamed, Razva Negru, Nisan Ozmert)
 
 ## Summary
 
@@ -32,11 +32,8 @@ Our handout can be found [here](handout/handout.pdf).
 A link to the code and how we created our graphics in our memo can be found [here](memo/memo.html).
 
 ## Data
-
-Include a citation for your data here. See
-<http://libraryguides.vu.edu.au/c.php?g=386501&p=4347840> for guidance
-on proper citation for datasets. If you got your data off the web, make
-sure to note the retrieval date.
+Promise Early Education, 2018-2025. Child Outcome Data. 
+https://github.com/ES-1085/f2025-ds1-project-gold/tree/828eae0672bc4ea7f62bfd1f8767e6c514839438/data/ignore
 
 ## References
 “Impact of the Covid-19 Pandemic on Early Childhood Care and Education.” 2020. Early Childhood Education Journal 48 (5): 533–36. https://doi.org/10.1007/s10643-020-01082-0.
