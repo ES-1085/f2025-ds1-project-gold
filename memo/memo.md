@@ -1,24 +1,111 @@
-Project memo
+Project proposal
 ================
-Team name
-
-This document should contain a detailed account of the data clean up for
-your data and the design choices you are making for your plots. For
-instance you will want to document choices you’ve made that were
-intentional for your graphic, e.g. color you’ve chosen for the plot.
-Think of this document as a code script someone can follow to reproduce
-the data cleaning steps and graphics in your handout.
+Gold Analysts - Mekkawy, Nissan, Razvan
 
 ``` r
 library(tidyverse)
 library(broom)
+library(readxl)
+library(dplyr)
+library(skimr)
 ```
 
-## Data Clean Up Steps for Overall Data
+``` r
+X2018_2019 <- read_excel("../data/ignore/2018-2019.xlsx")
+X2020_2021 <- read_excel("../data/ignore/2020-2021.xlsx")
+X2021_2022 <- read_excel("../data/ignore/2021-2022.xlsx")
+X2022_2023 <- read_excel("../data/ignore/2022-2023.xlsx")
+X2023_2024 <- read_excel("../data/ignore/2023-2024.xlsx")
+X2024_2025 <- read_excel("../data/ignore/2024-2025.xlsx")
+```
 
-### Step 1: \_\_\_\_\_\_\_\_\_
+## Cleaning the imported data and ordering it chronologically
 
-### Step 2: \_\_\_\_\_\_\_\_
+### Step 1: Convert chars into numbers
+
+``` r
+  #for each year we need to first convert our number of children, number of meeting/exceeding, and percentage of meeting/exceeding in numeric values and create a year column that would help us with sorting and labeling
+general_data_table <- bind_rows(
+  X2018_2019 |>
+    mutate(
+      `# Children` = parse_number(as.character(`# Children`), na = c("N/A", "NA")), 
+      `# Meeting / Exceeding` = parse_number(as.character(`# Meeting / Exceeding`), na = c("N/A", "NA")), 
+      `% Meeting / Exceeding` = parse_number(as.character(`% Meeting / Exceeding`)), 
+      year = "18-19"), 
+  X2020_2021 |>
+    mutate(
+      `# Children` = parse_number(as.character(`# Children`), na = c("N/A", "NA")), 
+      `# Meeting / Exceeding` = parse_number(as.character(`# Meeting / Exceeding`), na = c("N/A", "NA")), 
+      `% Meeting / Exceeding` = parse_number(as.character(`% Meeting / Exceeding`)), 
+      year = "20-21"), 
+  X2021_2022|>
+    mutate(
+      `# Children` = parse_number(as.character(`# Children`), na = c("N/A", "NA")), 
+      `# Meeting / Exceeding` = parse_number(as.character(`# Meeting / Exceeding`), na = c("N/A", "NA")), 
+      `% Meeting / Exceeding` = parse_number(as.character(`% Meeting / Exceeding`)), 
+      year = "21-22"), 
+  X2022_2023|>
+    mutate(
+      `# Children` = parse_number(as.character(`# Children`), na = c("N/A", "NA")), 
+      `# Meeting / Exceeding` = parse_number(as.character(`# Meeting / Exceeding`), na = c("N/A", "NA")), 
+      `% Meeting / Exceeding` = parse_number(as.character(`% Meeting / Exceeding`)), 
+      year = "22-23"), 
+  X2023_2024|>
+    mutate(
+      `# Children` = parse_number(as.character(`# Children`), na = c("N/A", "NA")), 
+      `# Meeting / Exceeding` = parse_number(as.character(`# Meeting / Exceeding`), na = c("N/A", "NA")), 
+      `% Meeting / Exceeding` = parse_number(as.character(`% Meeting / Exceeding`), na = c("N/A", "NA", "#DIV/0!")), 
+      year = "23-24"), 
+  X2024_2025|>
+    mutate(
+      `# Children` = parse_number(as.character(`# Children`), na = c("N/A", "NA")), 
+      `# Meeting / Exceeding` = parse_number(as.character(`# Meeting / Exceeding`), na = c("N/A", "NA")), 
+      `% Meeting / Exceeding` = parse_number(as.character(`% Meeting / Exceeding`)), 
+      year = "24-25")
+  ) |>
+  #shortening and simplifying the label for each school year and trimester
+  mutate(
+    season = case_when(
+      str_detect(`Time Period`, "Fall") ~ "Fall",
+      str_detect(`Time Period`, "Winter") ~ "Winter",
+      str_detect(`Time Period`, "Spring") ~ "Spring"
+    ),
+    label = paste(season, year),
+    #sorting for chronological order taking the beginning of the school year and the code for each season (Fall - 1, Winter - 2, Spring - 3)
+    #e.g. Fall 2018-2019 -> 181, Winter 2021-2022 -> 212
+    sort_num = as.numeric(str_sub(year, 1, 2)) * 10 + match(season, c("Fall","Winter","Spring")) 
+  )
+#ordering our data chronologically
+general_data_table <- general_data_table |>
+  mutate(
+    label = fct_reorder(label, sort_num)
+  )
+```
+
+### Step 2: Redo label
+
+``` r
+general_data_table <- general_data_table |>
+  mutate(
+    season = case_when(
+      str_detect(`Time Period`, "Fall") ~ "Fall",
+      str_detect(`Time Period`, "Winter") ~ "Winter",
+      str_detect(`Time Period`, "Spring") ~ "Spring"
+    ),
+    label = paste(season, year),
+    #sorting for chronological order taking the beginning of the school year and the code for each season (Fall - 1, Winter - 2, Spring - 3)
+    #e.g. Fall 2018-2019 -> 181, Winter 2021-2022 -> 212
+    sort_num = as.numeric(str_sub(year, 1, 2)) * 10 + match(season,c("Fall","Winter","Spring")))
+```
+
+### Step 3: Order data chronologically
+
+``` r
+general_data_table <- general_data_table |>
+  mutate(
+    label = fct_reorder(label, sort_num)
+  )
+```
 
 ## Plots
 
@@ -48,13 +135,119 @@ ggsave("example-starwars-wide.png", width = 6, height = 4)
 
 #### Data cleanup steps specific to plot 1
 
-``` r
-# This section is optional and depends on if you have some data cleaning steps specific to a particular plot
-```
+These data cleaning sections are optional and depend on if you have some
+data cleaning steps specific to a particular plot
 
 #### Final Plot 1
 
-### Plot 2: \_\_\_\_\_\_\_\_\_
+### Plot 2: IEP
+
+#### Combine Data Sets
+
+``` r
+all_years_raw <- list(
+  X2020_2021,
+  X2021_2022,
+  X2022_2023,
+  X2023_2024,
+  X2024_2025
+)
+numeric_cols <- c("# Children",
+                  "# Meeting / Exceeding",
+                  "% Meeting / Exceeding")
+
+all_years_raw_fixed <- map(
+  all_years_raw,
+  ~ .x %>%
+    mutate(
+      across(
+        any_of(numeric_cols),
+        ~ as.numeric(gsub("[^0-9.]", "", as.character(.)))
+      )
+    )
+)
+all_years <- bind_rows(all_years_raw_fixed)
+
+all_years <- all_years |>
+  mutate(
+    IEP = na_if(IEP, "N/A")
+  )
+```
+
+#### IEP Dataset
+
+``` r
+IEP_data <- all_years |>
+  filter(!is.na(IEP)) |>
+  group_by(Category, IEP, `Time Period`) |>
+  summarise(
+    n_children = sum(`# Children`, na.rm = TRUE),
+    n_meeting  = sum(`# Meeting / Exceeding`, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  mutate(
+    pct_meeting = 100 * n_meeting / n_children
+  ) |>
+  filter(!is.na(pct_meeting)) |>
+  mutate(
+    TimePeriod_f = factor(
+      `Time Period`,
+      levels = sort(unique(`Time Period`))
+    )
+  )
+
+IEP_data <- IEP_data |>
+  mutate(
+    Season = str_extract(`Time Period`, "^(Fall|Winter|Spring)"))
+```
+
+``` r
+IEP_data <- IEP_data |>
+  mutate(is_fall = Season == "Fall")
+
+ggplot(
+  IEP_data,
+  aes(x = TimePeriod_f, y = pct_meeting,
+      fill = IEP, group = IEP)
+) +
+  geom_area(position = "identity", alpha = 0.4) +
+  geom_line(aes(color = IEP), size = 1) +
+  geom_point(aes(size = ifelse(is_fall, 4, NA)), shape = 21 , stroke = 0) +
+  geom_vline(xintercept = "Fall 2022/2023") +
+  geom_text( 
+    aes(x = "Fall 2023/2024", y = 105, label = "During-COVID19"),
+    size = 2) +
+  geom_text( 
+    aes(x = "Spring 2020/2021", y = 105, label = "During-COVID19"),
+    size = 2) +
+  facet_wrap(~ Category) +
+  labs(
+    title = "Aacdemic Performances by Different IEP status During and Post COVID-19",
+    x = "Season / School Year",
+    y = "% Meeting / Exceeding (%)",
+    subtitle = "Grouped by Category ",
+    fill = "IEP Status",
+    color = "IEP Status"
+  ) +
+  scale_size_identity(guide = "none") +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "bottom",
+    strip.text = element_text(face = "bold")
+  )
+```
+
+    ## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+    ## ℹ Please use `linewidth` instead.
+    ## This warning is displayed once every 8 hours.
+    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+    ## generated.
+
+    ## Warning: Removed 72 rows containing missing values or values outside the scale range
+    ## (`geom_point()`).
+
+![](memo_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 ### Plot 3: \_\_\_\_\_\_\_\_\_\_\_
 
