@@ -439,7 +439,7 @@ drop_na()
 
 # I will make the plot and save it to covid_plot variable
 covid_plot <- ggplot(data, aes(reorder(label, sort_num), percent, color = Age, group = Age)) +
-# Add red background highlight for COVID period (Fall 2019 to Spring 2020)
+# Add green background highlight for COVID period (Fall 2019 to Spring 2020)
 annotate("rect", xmin = 3.5, xmax = 6.5, ymin = 0, ymax = 100, 
            fill = "#51C168", alpha = 0.1) +
 ## Add vertical green line at start of COVID
