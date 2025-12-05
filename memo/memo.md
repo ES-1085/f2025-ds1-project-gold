@@ -217,16 +217,13 @@ Before creating the IEP graph, we first built a cleaned dataset called
 IEP_data from general_data_table. We used mutate(IEP = na_if(IEP,
 “N/A”)) to turn “N/A” values in the IEP column into missing values, and
 then removed those rows with filter(!is.na(IEP)) so that only children
-with a recorded IEP status were kept.
-
-Next, we added a new variable is_fall that is TRUE when the
-trimester/season is “Fall” and FALSE otherwise; this lets us highlight
-fall points in the graph.
-
-Finally, we grouped the data by category, trimester label, sorting
-number, is_fall, and IEP status, and calculated the mean % Meeting /
-Exceeding in each group. We stored this as Avg IEP Meeting Exceeding,
-which is the summary measure used in the IEP graph.
+with a recorded IEP status were kept. Next, we added a new variable
+is_fall that is TRUE when the trimester/season is “Fall” and FALSE
+otherwise; this lets us highlight fall points in the graph. Finally, we
+grouped the data by category, trimester label, sorting number, is_fall,
+and IEP status, and calculated the mean % Meeting / Exceeding in each
+group. We stored this as Avg IEP Meeting Exceeding, which is the summary
+measure used in the IEP graph.
 
 ``` r
 all_year <- general_data_table |>
@@ -244,23 +241,19 @@ IEP_data <- IEP_data |>
   )
 ```
 
-After creating IEP data, we have created a
+After creating the IEP dataset, we produced our first IEP graph using a
+line plot to show the trend of the two IEP statuses during and after the
+COVID-19 pandemic (our dataset did not include IEP data for the
+pre-COVID years). Similar to our previous graphs, we placed a point at
+each Fall semester to indicate the start of the school year.
 
 ``` r
 iep_graph <- ggplot(
   IEP_data,
   aes(x = `label`, y = `Avg IEP Meeting Exceeding`, fill = IEP, group = IEP)
 ) +
-  geom_area(position = "identity", alpha = 0.4) +
   geom_line(aes(color = IEP), size = 1) +
   geom_point(aes(size = ifelse(is_fall, 4, NA)), shape = 21 , stroke = 0) +
-  geom_vline(xintercept = "Fall 21-22") +
-  geom_text( 
-    aes(x = "Spring 22-23", y = 110, label = "Post-COVID19"),
-    size = 1.5) +
-  geom_text( 
-    aes(x = "Winter 20-21", y = 110, label = "During-COVID19"),
-    size = 1.5) +
   facet_wrap(~ Category) +
   labs(
     title = "Academic Performances by Different IEP status During and Post COVID-19",
@@ -269,19 +262,6 @@ iep_graph <- ggplot(
     subtitle = "Grouped by Category ",
     fill = "IEP Status",
     color = "IEP Status"
-  ) +
-  scale_size_identity(guide = "none") +
-  scale_color_manual(
-    values = c(
-      "No" = "lightsalmon", 
-      "Yes" = "seagreen3"
-    ) 
-  ) +
-  scale_fill_manual(
-     values = c(
-      "No" = "lightsalmon", 
-      "Yes" = "seagreen3"
-    ) 
   ) +
   theme_minimal() +
   theme(
@@ -296,6 +276,68 @@ iep_graph
     ## Warning: Removed 120 rows containing missing values or values outside the scale range
     ## (`geom_point()`).
 
+![](memo_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+``` r
+ggsave("iep_impact.png", iep_graph, width = 15, height = 10, dpi = 300)
+```
+
+    ## Warning: Removed 120 rows containing missing values or values outside the scale range
+    ## (`geom_point()`).
+
+
+    Later, to better visualize the difference between the two groups, we decided to use geom_area(). We also added a vertical line separating the during-COVID and post-COVID periods, with labels on both sides to highlight the transition and emphasize the pandemic’s impact in the following years. Finally, we adjusted the color scheme of the graph so that it aligns with the rest of the plots in our handout.
+
+
+    ``` r
+    iep_graph <- ggplot(
+      IEP_data,
+      aes(x = `label`, y = `Avg IEP Meeting Exceeding`, fill = IEP, group = IEP)
+    ) +
+      geom_area(position = "identity", alpha = 0.4) +
+      geom_line(aes(color = IEP), size = 1) +
+      geom_point(aes(size = ifelse(is_fall, 4, NA)), shape = 21 , stroke = 0) +
+      geom_vline(xintercept = "Fall 21-22") +
+      geom_text( 
+        aes(x = "Spring 22-23", y = 110, label = "Post-COVID19"),
+        size = 1.5) +
+      geom_text( 
+        aes(x = "Winter 20-21", y = 110, label = "During-COVID19"),
+        size = 1.5) +
+      facet_wrap(~ Category) +
+      labs(
+        title = "Academic Performances by Different IEP status During and Post COVID-19",
+        x = "School Year (Season–Year)",
+        y = "% Meeting / Exceeding",
+        subtitle = "Grouped by Category ",
+        fill = "IEP Status",
+        color = "IEP Status"
+      ) +
+      scale_size_identity(guide = "none") +
+      scale_color_manual(
+        values = c(
+          "No" = "lightsalmon", 
+          "Yes" = "seagreen3"
+        ) 
+      ) +
+      scale_fill_manual(
+         values = c(
+          "No" = "lightsalmon", 
+          "Yes" = "seagreen3"
+        ) 
+      ) +
+      theme_minimal() +
+      theme(
+        axis.text.x = element_text(angle = 90, hjust = 1),
+        legend.position = "bottom",
+        strip.text = element_text(face = "bold")
+      )
+
+    iep_graph
+
+    ## Warning: Removed 120 rows containing missing values or values outside the scale range
+    ## (`geom_point()`).
+
 ![](memo_files/figure-gfm/iep-data-1.png)<!-- -->
 
 ``` r
@@ -305,14 +347,17 @@ ggsave("iep_impact.png", iep_graph, width = 15, height = 10, dpi = 300)
     ## Warning: Removed 120 rows containing missing values or values outside the scale range
     ## (`geom_point()`).
 
-During COVID-19, the percentage for students with IEP status is slightly
-lower than for students without IEP status in most categories,
-especially Cognitive, Literacy, Mathematics, and Physical.
-
-Post-COVID-19, the gap between the groups increases in every category
-except Physical, and the gap between the groups did not recover even
-after four post-pandemic academic years. This shows that COVID-19
-impacted children with IEP status more.
+During the COVID-19 period, although overall performance was lower, the
+gap between students with IEP status and those without IEP status was
+relatively small across most categories, including Cognitive,
+Mathematics, Literacy, and Physical. After the pandemic, this gap
+widened. Students with IEP status showed larger decreases in Language,
+Cognitive, and Mathematics performance, while the Physical category
+remained more stable. Even four years after the pandemic, the
+performance gap between IEP and non-IEP students remains larger than it
+was during COVID-19. Overall, this graph suggests that children with IEP
+status were more affected by the pandemic and have not yet fully
+recovered.
 
 ### Plot 3: \_\_\_\_\_\_\_\_\_\_\_
 
