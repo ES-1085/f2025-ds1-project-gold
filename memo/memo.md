@@ -276,7 +276,7 @@ iep_graph
     ## Warning: Removed 120 rows containing missing values or values outside the scale range
     ## (`geom_point()`).
 
-![](memo_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](memo_files/figure-gfm/iep-graph%20trial%201-1.png)<!-- -->
 
 ``` r
 ggsave("iep_impact.png", iep_graph, width = 15, height = 10, dpi = 300)
@@ -338,7 +338,7 @@ ggsave("iep_impact.png", iep_graph, width = 15, height = 10, dpi = 300)
     ## Warning: Removed 120 rows containing missing values or values outside the scale range
     ## (`geom_point()`).
 
-![](memo_files/figure-gfm/iep-data-1.png)<!-- -->
+<img src="memo_files/figure-gfm/iep-graph final-1.png" alt="Faceted area charts displaying percent of children meeting or exceeding expectations across six developmental categories from Fall 2020 to Spring 2025, higlighting increase in performance gap between children with and without IEP statues in post COVID-19 years, with children with iEP statues showing lower percentages"  />
 
 ``` r
 ggsave("iep_impact.png", iep_graph, width = 15, height = 10, dpi = 300)
