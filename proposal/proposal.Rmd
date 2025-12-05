@@ -273,7 +273,7 @@ ggsave("average_general_plot.png", average_general_data_plot, width = 15, height
 ### Age Grouped Plot
 ```{r fig.alt = "This faceted line chart tracks the percentage of children meeting learning goals across six specific developmental categories: Cognitive, Language, Literacy, Mathematics, Physical, and Social-Emotional. The data covers the 2018–2019 to 2024–2025 school years and organizes time by season: Fall (F), Winter (W) and Spring (S) to highlight progress throughout each year. Each colored line represents a different age group:  Blue is 2–3 years, Pink is 3–4 years and Yellow is 4–5 years. The purpose of this chart is to visualize how the COVID-19 pandemic disrupted learning in these specific areas and to track how children's development has recovered over time."}
 
-# Merge all data files
+# Fix all data files
 data <- bind_rows(
   X2018_2019 |> select(Category, `# Children`, Age, `# Meeting / Exceeding`, `Time Period`) |> 
     mutate(`# Children` = suppressWarnings(as.numeric(`# Children`)), 
@@ -323,10 +323,10 @@ drop_na()
 
 # I will make the plot and save it to covid_plot variable
 covid_plot <- ggplot(data, aes(reorder(label, sort_num), percent, color = Age, group = Age)) +
-# Add red background highlight for COVID period (Fall 2019 to Spring 2020)
+# Add green background highlight for COVID period (Fall 2019 to Spring 2020)
 annotate("rect", xmin = 3.5, xmax = 6.5, ymin = 0, ymax = 100, 
            fill = "#51C168", alpha = 0.1) +
-## Add vertical red line at start of COVID
+## Add vertical green line at start of COVID
 geom_vline(xintercept = 3.5, color = "#51C168", linetype = "dashed", size = 1) +
 geom_line(size = 1.5, alpha = 0.8) +
 geom_point(data = data |> group_by(Category, Age, year) |> filter(sort_num == min(sort_num)), 
@@ -350,7 +350,7 @@ ggsave("covid_clear_plot.png", covid_plot, width = 20, height = 12, dpi = 300)
 covid_plot
 ```
 
-As we see COVID-19 pandemic made it much harder for young children to learn and grow, especially in Social-Emotional and Language skills. Children stayed physically active and healthy but they struggled more with managing feelings and talking to others. The data reveals that the youngest children aged 0–2 have had the biggest drops in progress recently and that happens likely because they were born during stressful times with less social interaction. While they recover well during the school year, this data still highlights a strong need for summer bridge programs and focused social-emotional support to help them stay more on track and grow.
+Our age group plot here examines how children of different age groups were impacted by COVID-19 across six developmental categories. It tracks their trajectory from pre-pandemic baselines through the recovery period. During the pandemic, performance became notably unstable , with the youngest group (ages 2–3) often maintaining higher scores while the older groups (3–5 years) struggled to maintain consistency. After the initial lockdown period, we observed specific declines, most notably a delayed drop for the 2–3 year olds in Social-Emotional and Language skills around 2021, though the gap between age groups in areas like Mathematics and Cognitive development often widened with the oldest children trailing behind. Even four years after the height of the pandemic, these performance stratifications persist, showing that the 2–3 year olds have largely rebounded to become the highest-performing group while the 4–5 year olds continue to lag. This shows that while COVID-19 disrupted learning for everyone, the recovery has been irregular with the oldest preschool cohort facing the most difficulty in fully returning to pre-pandemic performance benchmarks.
 
 ```{r}
 # filter 0-1 age group and calculate percentages

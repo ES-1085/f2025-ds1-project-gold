@@ -129,6 +129,12 @@ general_data_plot
 
 ![](memo_files/figure-gfm/first-general-graph-attempt-1.png)<!-- -->
 
+We found this graph to complicated to interpret. Since we want to look
+at age groups through a different graph, we decided to use a
+visualization that generalizes performances for all the students the NGO
+works with. We also want to underline the start of a school year and the
+3 key periods we analyzes: Pre, During, Post-COVID.
+
 #### Cleaning data for the Average Plot
 
 Creating a new column that would help us highlight the beginning of the
@@ -190,7 +196,7 @@ average_general_data_plot
     ## Warning: Removed 72 rows containing missing values or values outside the scale range
     ## (`geom_point()`).
 
-![](memo_files/figure-gfm/final-general-graph-1.png)<!-- -->
+<img src="memo_files/figure-gfm/final-general-graph-1.png" alt="A faceted line plot shows the percentage of students meeting or exceeding expectations from Spring 2018–19 to Spring 2024–25 across several categories. Fall data points are highlighted. The background includes shaded regions marking pre-COVID, during-COVID, and post-COVID periods, with two dotted vertical lines marking Fall 2020–21 and Fall 2021–22. The chart shows changes in performance over time within each category."  />
 
 ``` r
 #saving
@@ -276,7 +282,11 @@ iep_graph
     ## Warning: Removed 120 rows containing missing values or values outside the scale range
     ## (`geom_point()`).
 
+<<<<<<< HEAD
 ![](memo_files/figure-gfm/iep-graph%20trial%201-1.png)<!-- -->
+=======
+![](memo_files/figure-gfm/iep-first-try-1.png)<!-- -->
+>>>>>>> 828eae0672bc4ea7f62bfd1f8767e6c514839438
 
 ``` r
 ggsave("iep_impact.png", iep_graph, width = 15, height = 10, dpi = 300)
@@ -285,60 +295,68 @@ ggsave("iep_impact.png", iep_graph, width = 15, height = 10, dpi = 300)
     ## Warning: Removed 120 rows containing missing values or values outside the scale range
     ## (`geom_point()`).
 
+Later, to better visualize the difference between the two groups, we
+decided to use geom_area(). We also added a vertical line separating the
+during-COVID and post-COVID periods, with labels on both sides to
+highlight the transition and emphasize the pandemic’s impact in the
+following years. Finally, we adjusted the color scheme of the graph so
+that it aligns with the rest of the plots in our handout.
 
-    Later, to better visualize the difference between the two groups, we decided to use geom_area(). We also added a vertical line separating the during-COVID and post-COVID periods, with labels on both sides to highlight the transition and emphasize the pandemic’s impact in the following years. Finally, we adjusted the color scheme of the graph so that it aligns with the rest of the plots in our handout.
+``` r
+iep_graph <- ggplot(
+  IEP_data,
+  aes(x = `label`, y = `Avg IEP Meeting Exceeding`, fill = IEP, group = IEP)
+) +
+  geom_area(position = "identity", alpha = 0.4) +
+  geom_line(aes(color = IEP), size = 1) +
+  geom_point(aes(size = ifelse(is_fall, 4, NA)), shape = 21 , stroke = 0) +
+  geom_vline(xintercept = "Fall 21-22") +
+  geom_text( 
+    aes(x = "Spring 22-23", y = 110, label = "Post-COVID19"),
+    size = 1.5) +
+  geom_text( 
+    aes(x = "Winter 20-21", y = 110, label = "During-COVID19"),
+    size = 1.5) +
+  facet_wrap(~ Category) +
+  labs(
+    title = "Academic Performances by Different IEP status During and Post COVID-19",
+    x = "School Year (Season–Year)",
+    y = "% Meeting / Exceeding",
+    subtitle = "Grouped by Category ",
+    fill = "IEP Status",
+    color = "IEP Status"
+  ) +
+  scale_size_identity(guide = "none") +
+  scale_color_manual(
+    values = c(
+      "No" = "lightsalmon", 
+      "Yes" = "seagreen3"
+    ) 
+  ) +
+  scale_fill_manual(
+     values = c(
+      "No" = "lightsalmon", 
+      "Yes" = "seagreen3"
+    ) 
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1),
+    legend.position = "bottom",
+    strip.text = element_text(face = "bold")
+  )
 
-
-    ``` r
-    iep_graph <- ggplot(
-      IEP_data,
-      aes(x = `label`, y = `Avg IEP Meeting Exceeding`, fill = IEP, group = IEP)
-    ) +
-      geom_area(position = "identity", alpha = 0.4) +
-      geom_line(aes(color = IEP), size = 1) +
-      geom_point(aes(size = ifelse(is_fall, 4, NA)), shape = 21 , stroke = 0) +
-      geom_vline(xintercept = "Fall 21-22") +
-      geom_text( 
-        aes(x = "Spring 22-23", y = 110, label = "Post-COVID19"),
-        size = 1.5) +
-      geom_text( 
-        aes(x = "Winter 20-21", y = 110, label = "During-COVID19"),
-        size = 1.5) +
-      facet_wrap(~ Category) +
-      labs(
-        title = "Academic Performances by Different IEP status During and Post COVID-19",
-        x = "School Year (Season–Year)",
-        y = "% Meeting / Exceeding",
-        subtitle = "Grouped by Category ",
-        fill = "IEP Status",
-        color = "IEP Status"
-      ) +
-      scale_size_identity(guide = "none") +
-      scale_color_manual(
-        values = c(
-          "No" = "lightsalmon", 
-          "Yes" = "seagreen3"
-        ) 
-      ) +
-      scale_fill_manual(
-         values = c(
-          "No" = "lightsalmon", 
-          "Yes" = "seagreen3"
-        ) 
-      ) +
-      theme_minimal() +
-      theme(
-        axis.text.x = element_text(angle = 90, hjust = 1),
-        legend.position = "bottom",
-        strip.text = element_text(face = "bold")
-      )
-
-    iep_graph
+iep_graph
+```
 
     ## Warning: Removed 120 rows containing missing values or values outside the scale range
     ## (`geom_point()`).
 
+<<<<<<< HEAD
 <img src="memo_files/figure-gfm/iep-graph final-1.png" alt="Faceted area charts displaying percent of children meeting or exceeding expectations across six developmental categories from Fall 2020 to Spring 2025, higlighting increase in performance gap between children with and without IEP statues in post COVID-19 years, with children with iEP statues showing lower percentages"  />
+=======
+<img src="memo_files/figure-gfm/iep-data-1.png" alt="Faceted area charts displaying the percentage of children meeting or exceeding expectations(x-axis) across six developmental categories from Fall 2020 to Spring 2025 (y-axis). It highlights that the gap between IEP and non-IEP groups increases in post-COVID-19 years, with the IEP group consistently performing lower."  />
+>>>>>>> 828eae0672bc4ea7f62bfd1f8767e6c514839438
 
 ``` r
 ggsave("iep_impact.png", iep_graph, width = 15, height = 10, dpi = 300)
@@ -359,10 +377,90 @@ was during COVID-19. Overall, this graph suggests that children with IEP
 status were more affected by the pandemic and have not yet fully
 recovered.
 
-### Plot 3: \_\_\_\_\_\_\_\_\_\_\_
+### Plot 3: Age Grouped Plot
 
-Add more plot sections as needed. Each project should have at least 3
-plots, but talk to me if you have fewer than 3.
+Our goal here is to create a chart that shows the percentage of children
+meeting learning goals in six areas: Cognitive, Language, Literacy,
+Math, Physical, and Social-Emotional. The chart will use data from the
+2018–2019 to the 2024–2025 school years and will show progress each Fall
+(F), Winter (W), and Spring (S). Each line will represent an age group
+and the purpose is to show how COVID-19 affected children’s learning and
+how their development has changed and improved over time.
+
+#### Cleaning data for the Average Plot
+
+We filter the very young age groups (0–1 and 1–2) as the chart will only
+focus on ages 2–3, 3–4, and 4–5.
+
+``` r
+data <- general_data_table |>
+filter(Age != "0-1") |>
+drop_na()
+
+data <- data |>
+filter(Age != "1-2") |>
+drop_na() 
+```
+
+In the last part we create the visual chart. We draw lines showing how
+each age group performed over time and we add a shaded green background
+and a dashed line to highlight the period when COVID-19 started. Each
+developmental category gets its own panel so the chart is easy to read.
+After setting the colors and adjusting the labels and layout, we save
+the final chart as a PNG image and display it. This gives us a clear
+picture of how learning changed before, during and after the pandemic.
+
+#### Final Age grouped graph
+
+``` r
+# I will make the plot and save it to covid_plot variable
+covid_plot <- ggplot(data, aes(reorder(label, sort_num), `% Meeting / Exceeding`, color = Age, group = Age)) +
+# Add green background highlight for COVID period (Fall 2019 to Spring 2020)
+annotate("rect", xmin = 3.5, xmax = 6.5, ymin = 0, ymax = 100, 
+           fill = "#51C168", alpha = 0.1) +
+## Add vertical green line at start of COVID
+geom_vline(xintercept = 3.5, color = "#51C168", linetype = "dashed", size = 1) +
+geom_line(size = 1.5, alpha = 0.8) +
+geom_point(data = data |> group_by(Category, Age, year) |> filter(sort_num == min(sort_num)), 
+    size = 2.5, alpha = 0.9) +
+facet_wrap(~Category) +
+scale_color_manual(values = c("#51C168", "#5C57D8", "#FABA09")) +
+ylim(0, 100) +
+labs(title = "COVID-19 Impact on Age Groups", 
+x = "School Year (Season–Year)", 
+y = "% Meeting / Exceeding") +
+theme_minimal() +
+theme(
+axis.text.x = element_text(angle = 90, size = 9),
+strip.text = element_text(face = "bold"),
+legend.position = "bottom",
+plot.caption = element_text(hjust = 0, color = "#51C168", face = "italic")
+  )
+
+#Save Png
+ggsave("covid_clear_plot.png", covid_plot, width = 20, height = 12, dpi = 300)
+covid_plot
+```
+
+<img src="memo_files/figure-gfm/age-final-plot-1.png" alt="This faceted line chart tracks the percentage of children meeting learning goals across six specific developmental categories: Cognitive, Language, Literacy, Mathematics, Physical, and Social-Emotional. The data covers the 2018–2019 to 2024–2025 school years and organizes time by season: Fall (F), Winter (W) and Spring (S) to highlight progress throughout each year. Each colored line represents a different age group:  Blue is 2–3 years, Pink is 3–4 years and Yellow is 4–5 years. The purpose of this chart is to visualize how the COVID-19 pandemic disrupted learning in these specific areas and to track how children's development has recovered over time."  />
+
+Our age group plot here examines how children of different age groups
+were impacted by COVID-19 across six developmental categories. It tracks
+their trajectory from pre-pandemic baselines through the recovery
+period. During the pandemic, performance became notably unstable , with
+the youngest group (ages 2–3) often maintaining higher scores while the
+older groups (3–5 years) struggled to maintain consistency. After the
+initial lockdown period, we observed specific declines, most notably a
+delayed drop for the 2–3 year olds in Social-Emotional and Language
+skills around 2021, though the gap between age groups in areas like
+Mathematics and Cognitive development often widened with the oldest
+children trailing behind. Even four years after the height of the
+pandemic, these performance stratifications persist, showing that the
+2–3 year olds have largely rebounded to become the highest-performing
+group while the 4–5 year olds continue to lag. This shows that while
+COVID-19 disrupted learning for everyone, the recovery has been
+irregular with the oldest preschool cohort facing the most difficulty in
+fully returning to pre-pandemic performance benchmarks.
 
 ### Plot 4: Missing Data
 
