@@ -188,6 +188,11 @@ average_general_data_plot
 ggsave("average_general_plot.png", average_general_data_plot, width = 15, height = 10, dpi = 300)
 ```
 
+Average percentage of children meeting/exceeding expectations for all the age groups the NGO works with. 
+  
+After the COVID-19 pandemic, less and less children tend to perform well when compared with the previous years. Less children perform well from the first trimester, and the growth over the school year seems to be more and more linear instead of steep.
+ 
+To get more insights, we focused on two main variables: age groups and IEP status.
 
 ### Plot 2: IEP 
 
@@ -216,7 +221,7 @@ IEP_data <- IEP_data |>
 
 After creating IEP data, we have created a 
 
-```{r}
+```{r iep-data, fig.height = 8, fig.width = 12}
 iep_graph <- ggplot(
   IEP_data,
   aes(x = `label`, y = `Avg IEP Meeting Exceeding`, fill = IEP, group = IEP)
@@ -264,7 +269,9 @@ iep_graph
 
 ggsave("iep_impact.png", iep_graph, width = 15, height = 10, dpi = 300)
 ```
-
+During COVID-19, the percentage for students with IEP status is slightly lower than for students without IEP status in most categories, especially Cognitive, Literacy, Mathematics, and Physical.
+ 
+Post-COVID-19, the gap between the groups increases in every category except Physical, and the gap between the groups did not recover even after four post-pandemic academic years. This shows that COVID-19 impacted children with IEP status more.
 
 ### Plot 3: ___________
 
@@ -289,3 +296,6 @@ suppressWarnings(vis_miss(general_data_table))+
 suppressWarnings(gg_miss_upset(general_data_table))
 ```
 
+Our only missing data is in the `# Children` and `# Meeting/Exceeding` variables in the school year `2021-2022`. The NGO lost the specific number of children they worked with for age group `4-5`, both with and without an IEP status. However, we could still fully conduct our research because they provided the exact percentage of children meeting/exceeding in this category. 
+
+In conclusion, even though we found missing data, it did not impact our study in any way. 

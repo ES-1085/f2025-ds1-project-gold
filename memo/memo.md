@@ -127,9 +127,6 @@ general_data_plot <- ggplot(general_data_table, aes(x = label, y = `% Meeting / 
 general_data_plot
 ```
 
-    ## Warning: Removed 2 rows containing missing values or values outside the scale range
-    ## (`geom_point()`).
-
 ![](memo_files/figure-gfm/first-general-graph-attempt-1.png)<!-- -->
 
 #### Cleaning data for the Average Plot
@@ -202,6 +199,17 @@ ggsave("average_general_plot.png", average_general_data_plot, width = 15, height
 
     ## Warning: Removed 72 rows containing missing values or values outside the scale range
     ## (`geom_point()`).
+
+Average percentage of children meeting/exceeding expectations for all
+the age groups the NGO works with.
+
+After the COVID-19 pandemic, less and less children tend to perform well
+when compared with the previous years. Less children perform well from
+the first trimester, and the growth over the school year seems to be
+more and more linear instead of steep.
+
+To get more insights, we focused on two main variables: age groups and
+IEP status.
 
 ### Plot 2: IEP
 
@@ -288,7 +296,7 @@ iep_graph
     ## Warning: Removed 120 rows containing missing values or values outside the scale range
     ## (`geom_point()`).
 
-![](memo_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](memo_files/figure-gfm/iep-data-1.png)<!-- -->
 
 ``` r
 ggsave("iep_impact.png", iep_graph, width = 15, height = 10, dpi = 300)
@@ -296,6 +304,15 @@ ggsave("iep_impact.png", iep_graph, width = 15, height = 10, dpi = 300)
 
     ## Warning: Removed 120 rows containing missing values or values outside the scale range
     ## (`geom_point()`).
+
+During COVID-19, the percentage for students with IEP status is slightly
+lower than for students without IEP status in most categories,
+especially Cognitive, Literacy, Mathematics, and Physical.
+
+Post-COVID-19, the gap between the groups increases in every category
+except Physical, and the gap between the groups did not recover even
+after four post-pandemic academic years. This shows that COVID-19
+impacted children with IEP status more.
 
 ### Plot 3: \_\_\_\_\_\_\_\_\_\_\_
 
@@ -330,3 +347,13 @@ suppressWarnings(gg_miss_upset(general_data_table))
 ```
 
 ![](memo_files/figure-gfm/missing-data-plot-3-1.png)<!-- -->
+
+Our only missing data is in the `# Children` and `# Meeting/Exceeding`
+variables in the school year `2021-2022`. The NGO lost the specific
+number of children they worked with for age group `4-5`, both with and
+without an IEP status. However, we could still fully conduct our
+research because they provided the exact percentage of children
+meeting/exceeding in this category.
+
+In conclusion, even though we found missing data, it did not impact our
+study in any way.
