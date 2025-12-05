@@ -1,6 +1,6 @@
-Project proposal
+Project memo
 ================
-Gold Analysts - Mekkawy, Nissan, Razvan
+Gold Analysts - Mekkawy, Nisan, Razvan
 
 ``` r
 library(tidyverse)
@@ -24,7 +24,7 @@ X2024_2025 <- read_excel("../data/ignore/2024-2025.xlsx")
 ### Step 1: Convert chars into numbers
 
 ``` r
-  #for each year we need to first convert our number of children, number of meeting/exceeding, and percentage of meeting/exceeding in numeric values and create a year column that would help us with sorting and labeling
+#for each year we need to first convert our number of children, number of meeting/exceeding, and percentage of meeting/exceeding in numeric values and create a year column that would help us with sorting and labeling
 general_data_table <- bind_rows(
   X2018_2019 |>
     mutate(
@@ -306,46 +306,77 @@ IEP_data <- IEP_data |>
 ```
 
 ``` r
-IEP_data <- IEP_data |>
-  mutate(is_fall = Season == "Fall")
+all_year <- general_data_table |>
+  mutate(IEP = na_if(IEP, "N/A")) |>
+  filter(!is.na(IEP))
 
-ggplot(
+IEP_data <- all_year |>
+  mutate(is_fall = (`season` == "Fall"))
+
+IEP_data <- IEP_data |>
+  group_by(Category, label, sort_num, is_fall, IEP) |>
+  summarise(
+    `Avg IEP Meeting Exceeding` = mean(`% Meeting / Exceeding`, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+iep_graph <- ggplot(
   IEP_data,
-  aes(x = TimePeriod_f, y = pct_meeting,
-      fill = IEP, group = IEP)
+  aes(x = `label`, y = `Avg IEP Meeting Exceeding`, fill = IEP, group = IEP)
 ) +
   geom_area(position = "identity", alpha = 0.4) +
   geom_line(aes(color = IEP), size = 1) +
   geom_point(aes(size = ifelse(is_fall, 4, NA)), shape = 21 , stroke = 0) +
-  geom_vline(xintercept = "Fall 2022/2023") +
+  geom_vline(xintercept = "Fall 21-22") +
   geom_text( 
-    aes(x = "Fall 2023/2024", y = 105, label = "During-COVID19"),
-    size = 2) +
+    aes(x = "Spring 22-23", y = 110, label = "Post-COVID19"),
+    size = 1.5) +
   geom_text( 
-    aes(x = "Spring 2020/2021", y = 105, label = "During-COVID19"),
-    size = 2) +
+    aes(x = "Winter 20-21", y = 110, label = "During-COVID19"),
+    size = 1.5) +
   facet_wrap(~ Category) +
   labs(
-    title = "Aacdemic Performances by Different IEP status During and Post COVID-19",
-    x = "Season / School Year",
-    y = "% Meeting / Exceeding (%)",
+    title = "Academic Performances by Different IEP status During and Post COVID-19",
+    x = "School Year (Season–Year)",
+    y = "% Meeting / Exceeding",
     subtitle = "Grouped by Category ",
     fill = "IEP Status",
     color = "IEP Status"
   ) +
   scale_size_identity(guide = "none") +
+  scale_color_manual(
+    values = c(
+      "No" = "lightsalmon", 
+      "Yes" = "seagreen3"
+    ) 
+  ) +
+  scale_fill_manual(
+     values = c(
+      "No" = "lightsalmon", 
+      "Yes" = "seagreen3"
+    ) 
+  ) +
   theme_minimal() +
   theme(
-    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.text.x = element_text(angle = 90, hjust = 1),
     legend.position = "bottom",
     strip.text = element_text(face = "bold")
   )
+
+iep_graph
 ```
 
-    ## Warning: Removed 72 rows containing missing values or values outside the scale range
+    ## Warning: Removed 120 rows containing missing values or values outside the scale range
     ## (`geom_point()`).
 
-![](memo_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](memo_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+``` r
+ggsave("iep_impact.png", iep_graph, width = 15, height = 10, dpi = 300)
+```
+
+    ## Warning: Removed 120 rows containing missing values or values outside the scale range
+    ## (`geom_point()`).
 
 ### Plot 3: \_\_\_\_\_\_\_\_\_\_\_
 

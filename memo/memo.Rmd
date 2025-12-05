@@ -1,10 +1,9 @@
 ---
 title: "Project memo"
-author: "Gold Analyst"
+author: "Gold Analysts - Mekkawy, Nisan, Razvan"
 output: github_document
 ---
 
-This document should contain a detailed account of the data clean up for your data and the design choices you are making for your plots. For instance you will want to document choices you've made that were intentional for your graphic, e.g. color you've chosen for the plot. Think of this document as a code script someone can follow to reproduce the data cleaning steps and graphics in your handout.
 
 ```{r load-packages, message = FALSE}
 library(tidyverse)
@@ -14,15 +13,103 @@ library(dplyr)
 library(skimr)
 ```
 
-## Data Clean Up Steps for Overall Data
-
-### Step 1: _________
-
-```{r}
-
+```{r read-data}
+X2018_2019 <- read_excel("../data/ignore/2018-2019.xlsx")
+X2020_2021 <- read_excel("../data/ignore/2020-2021.xlsx")
+X2021_2022 <- read_excel("../data/ignore/2021-2022.xlsx")
+X2022_2023 <- read_excel("../data/ignore/2022-2023.xlsx")
+X2023_2024 <- read_excel("../data/ignore/2023-2024.xlsx")
+X2024_2025 <- read_excel("../data/ignore/2024-2025.xlsx")
 ```
 
-### Step 2: ________
+## Cleaning the imported data and ordering it chronologically 
+
+### Step 1: Convert chars into numbers
+
+```{r}
+#for each year we need to first convert our number of children, number of meeting/exceeding, and percentage of meeting/exceeding in numeric values and create a year column that would help us with sorting and labeling
+general_data_table <- bind_rows(
+  X2018_2019 |>
+    mutate(
+      `# Children` = parse_number(as.character(`# Children`), na = c("N/A", "NA")), 
+      `# Meeting / Exceeding` = parse_number(as.character(`# Meeting / Exceeding`), na = c("N/A", "NA")), 
+      `% Meeting / Exceeding` = parse_number(as.character(`% Meeting / Exceeding`)), 
+      year = "18-19"), 
+  X2020_2021 |>
+    mutate(
+      `# Children` = parse_number(as.character(`# Children`), na = c("N/A", "NA")), 
+      `# Meeting / Exceeding` = parse_number(as.character(`# Meeting / Exceeding`), na = c("N/A", "NA")), 
+      `% Meeting / Exceeding` = parse_number(as.character(`% Meeting / Exceeding`)), 
+      year = "20-21"), 
+  X2021_2022|>
+    mutate(
+      `# Children` = parse_number(as.character(`# Children`), na = c("N/A", "NA")), 
+      `# Meeting / Exceeding` = parse_number(as.character(`# Meeting / Exceeding`), na = c("N/A", "NA")), 
+      `% Meeting / Exceeding` = parse_number(as.character(`% Meeting / Exceeding`)), 
+      year = "21-22"), 
+  X2022_2023|>
+    mutate(
+      `# Children` = parse_number(as.character(`# Children`), na = c("N/A", "NA")), 
+      `# Meeting / Exceeding` = parse_number(as.character(`# Meeting / Exceeding`), na = c("N/A", "NA")), 
+      `% Meeting / Exceeding` = parse_number(as.character(`% Meeting / Exceeding`)), 
+      year = "22-23"), 
+  X2023_2024|>
+    mutate(
+      `# Children` = parse_number(as.character(`# Children`), na = c("N/A", "NA")), 
+      `# Meeting / Exceeding` = parse_number(as.character(`# Meeting / Exceeding`), na = c("N/A", "NA")), 
+      `% Meeting / Exceeding` = parse_number(as.character(`% Meeting / Exceeding`), na = c("N/A", "NA", "#DIV/0!")), 
+      year = "23-24"), 
+  X2024_2025|>
+    mutate(
+      `# Children` = parse_number(as.character(`# Children`), na = c("N/A", "NA")), 
+      `# Meeting / Exceeding` = parse_number(as.character(`# Meeting / Exceeding`), na = c("N/A", "NA")), 
+      `% Meeting / Exceeding` = parse_number(as.character(`% Meeting / Exceeding`)), 
+      year = "24-25")
+  ) |>
+  #shortening and simplifying the label for each school year and trimester
+  mutate(
+    season = case_when(
+      str_detect(`Time Period`, "Fall") ~ "Fall",
+      str_detect(`Time Period`, "Winter") ~ "Winter",
+      str_detect(`Time Period`, "Spring") ~ "Spring"
+    ),
+    label = paste(season, year),
+    #sorting for chronological order taking the beginning of the school year and the code for each season (Fall - 1, Winter - 2, Spring - 3)
+    #e.g. Fall 2018-2019 -> 181, Winter 2021-2022 -> 212
+    sort_num = as.numeric(str_sub(year, 1, 2)) * 10 + match(season, c("Fall","Winter","Spring")) 
+  )
+#ordering our data chronologically
+general_data_table <- general_data_table |>
+  mutate(
+    label = fct_reorder(label, sort_num)
+  )
+```
+
+### Step 2: Redo label
+
+```{r}
+general_data_table <- general_data_table |>
+  mutate(
+    season = case_when(
+      str_detect(`Time Period`, "Fall") ~ "Fall",
+      str_detect(`Time Period`, "Winter") ~ "Winter",
+      str_detect(`Time Period`, "Spring") ~ "Spring"
+    ),
+    label = paste(season, year),
+    #sorting for chronological order taking the beginning of the school year and the code for each season (Fall - 1, Winter - 2, Spring - 3)
+    #e.g. Fall 2018-2019 -> 181, Winter 2021-2022 -> 212
+    sort_num = as.numeric(str_sub(year, 1, 2)) * 10 + match(season,c("Fall","Winter","Spring")))
+```
+
+
+### Step 3: Order data chronologically
+
+```{r}
+general_data_table <- general_data_table |>
+  mutate(
+    label = fct_reorder(label, sort_num)
+  )
+```
 
 ## Plots
 
@@ -50,21 +137,91 @@ ggsave("example-starwars-wide.png", width = 6, height = 4)
 
 
 
-### Plot 1: _________
+### Plot 1: Average performance
 
-#### Data cleanup steps specific to plot 1
+#### First General Data Attempt
 
-These data cleaning sections are optional and depend on if you have some data cleaning steps specific to a particular plot
 
-```{r}
 
+```{r first-general-graph-attempt}
+general_data_plot <- ggplot(general_data_table, aes(x = label, y = `% Meeting / Exceeding`, color = Age, group = Age)) +
+  geom_line(size = 1.1) +
+  geom_point(size = 2) +
+  facet_wrap(~ Category, ncol = 1) +
+  ylim(0, 100)+
+  labs(
+    title = "%Meeting/Exceeding Over 6 School Years",
+    subtitle = "by Category",
+    x = "School Year (Season–Year)",
+    y = "Percent Meeting/Exceeding"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+    strip.text = element_text(face = "bold"),
+    panel.spacing = unit(1, "lines")
+  )
+
+general_data_plot
+
+#saving
+ggsave("general_plot.png", general_data_plot, width = 10, height = 20, dpi = 300)
 ```
 
+```{r new-column-highlight-beggining-of-school-year}
+#creating a new column that would help us highlight the beginning of the school year
+average_general_data_table <- general_data_table |>
+  mutate(is_fall = (`season` == "Fall"))
+```
+
+```{r average-all-age-groups}
+#calculating the average of all age groups' seasonal performance
+average_general_data_table <- average_general_data_table |>
+  group_by(Category, label, sort_num, is_fall) |>
+  summarise(
+    `Avg Meeting Exceeding` = mean(`% Meeting / Exceeding`, na.rm = TRUE),
+    .groups = "drop"
+  )
+```
 
 #### Final Plot 1
 
-```{r}
+```{r final-general-graph}
+average_general_data_plot <- ggplot(average_general_data_table, aes(x = label, y = `Avg Meeting Exceeding`, group = Category)) +
+  geom_line(size = 1) +
+  geom_point(aes(size = ifelse(is_fall, 4, NA)), shape = 20, stroke = 0) +
+  geom_vline(xintercept = "Fall 20-21", linetype = "dotted", color = "#51C168")+
+  geom_vline(xintercept = "Fall 21-22", linetype = "dotted", color = "#51C168")+
+  annotate("rect", xmin="Fall 18-19", xmax="Fall 20-21", ymin = 40, ymax = 100, alpha = 0.1, fill = "#E7913E")+
+  annotate("rect", xmin="Fall 18-19", xmax="Fall 21-22", ymin = 40, ymax = 100, alpha = 0.1, fill = "#5C57D8")+
+  annotate("rect", xmin="Fall 21-22", xmax="Spring 24-25", ymin = 40, ymax = 100, alpha = 0.1, fill = "#FABA09")+
+  geom_text( 
+    aes(x = "Spring 18-19", y = 105, label = "Pre-COVID19"),
+    size = 2) +
+  geom_text( 
+    aes(x = "Spring 20-21", y = 105, label = "During-COVID19"),
+    size = 2) +
+  geom_text( 
+    aes(x = "Fall 23-24", y = 105, label = "Post-COVID19"),
+    size = 2) +
+  facet_wrap(~ Category, ncol = 2) +
+  ylim(40, 110)+
+  labs(
+    title = "Average Performance",
+    subtitle = "by Category, for all ages",
+    x = "School Year (Season–Year)",
+    y = "% Meeting / Exceeding"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+    legend.position = "none"
+  )
 
+average_general_data_plot
+
+#saving
+ggsave("average_general_plot.png", average_general_data_plot, width = 15, height = 10, dpi = 300)
 ```
 
 
@@ -129,40 +286,66 @@ IEP_data <- IEP_data |>
 ```
 
 ```{r}
-IEP_data <- IEP_data |>
-  mutate(is_fall = Season == "Fall")
+all_year <- general_data_table |>
+  mutate(IEP = na_if(IEP, "N/A")) |>
+  filter(!is.na(IEP))
 
-ggplot(
+IEP_data <- all_year |>
+  mutate(is_fall = (`season` == "Fall"))
+
+IEP_data <- IEP_data |>
+  group_by(Category, label, sort_num, is_fall, IEP) |>
+  summarise(
+    `Avg IEP Meeting Exceeding` = mean(`% Meeting / Exceeding`, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+iep_graph <- ggplot(
   IEP_data,
-  aes(x = TimePeriod_f, y = pct_meeting,
-      fill = IEP, group = IEP)
+  aes(x = `label`, y = `Avg IEP Meeting Exceeding`, fill = IEP, group = IEP)
 ) +
   geom_area(position = "identity", alpha = 0.4) +
   geom_line(aes(color = IEP), size = 1) +
   geom_point(aes(size = ifelse(is_fall, 4, NA)), shape = 21 , stroke = 0) +
-  geom_vline(xintercept = "Fall 2022/2023") +
+  geom_vline(xintercept = "Fall 21-22") +
   geom_text( 
-    aes(x = "Fall 2023/2024", y = 105, label = "During-COVID19"),
-    size = 2) +
+    aes(x = "Spring 22-23", y = 110, label = "Post-COVID19"),
+    size = 1.5) +
   geom_text( 
-    aes(x = "Spring 2020/2021", y = 105, label = "During-COVID19"),
-    size = 2) +
+    aes(x = "Winter 20-21", y = 110, label = "During-COVID19"),
+    size = 1.5) +
   facet_wrap(~ Category) +
   labs(
-    title = "Aacdemic Performances by Different IEP status During and Post COVID-19",
-    x = "Season / School Year",
-    y = "% Meeting / Exceeding (%)",
+    title = "Academic Performances by Different IEP status During and Post COVID-19",
+    x = "School Year (Season–Year)",
+    y = "% Meeting / Exceeding",
     subtitle = "Grouped by Category ",
     fill = "IEP Status",
     color = "IEP Status"
   ) +
   scale_size_identity(guide = "none") +
+  scale_color_manual(
+    values = c(
+      "No" = "lightsalmon", 
+      "Yes" = "seagreen3"
+    ) 
+  ) +
+  scale_fill_manual(
+     values = c(
+      "No" = "lightsalmon", 
+      "Yes" = "seagreen3"
+    ) 
+  ) +
   theme_minimal() +
   theme(
-    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.text.x = element_text(angle = 90, hjust = 1),
     legend.position = "bottom",
     strip.text = element_text(face = "bold")
   )
+
+iep_graph
+
+ggsave("iep_impact.png", iep_graph, width = 15, height = 10, dpi = 300)
 ```
 
 
