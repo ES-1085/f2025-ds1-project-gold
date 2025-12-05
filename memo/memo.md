@@ -8,6 +8,7 @@ library(broom)
 library(readxl)
 library(dplyr)
 library(skimr)
+library(naniar)
 ```
 
 ``` r
@@ -19,12 +20,15 @@ X2023_2024 <- read_excel("../data/ignore/2023-2024.xlsx")
 X2024_2025 <- read_excel("../data/ignore/2024-2025.xlsx")
 ```
 
-## Cleaning the imported data and ordering it chronologically
+## Data Clean Up Steps for Overall Data
 
 ### Step 1: Convert chars into numbers
 
+For each year we need to first convert our number of children, number of
+meeting/exceeding, and percentage of meeting/exceeding in numeric values
+and create a year column that would help us with sorting and labeling
+
 ``` r
-#for each year we need to first convert our number of children, number of meeting/exceeding, and percentage of meeting/exceeding in numeric values and create a year column that would help us with sorting and labeling
 general_data_table <- bind_rows(
   X2018_2019 |>
     mutate(
@@ -62,27 +66,15 @@ general_data_table <- bind_rows(
       `# Meeting / Exceeding` = parse_number(as.character(`# Meeting / Exceeding`), na = c("N/A", "NA")), 
       `% Meeting / Exceeding` = parse_number(as.character(`% Meeting / Exceeding`)), 
       year = "24-25")
-  ) |>
-  #shortening and simplifying the label for each school year and trimester
-  mutate(
-    season = case_when(
-      str_detect(`Time Period`, "Fall") ~ "Fall",
-      str_detect(`Time Period`, "Winter") ~ "Winter",
-      str_detect(`Time Period`, "Spring") ~ "Spring"
-    ),
-    label = paste(season, year),
-    #sorting for chronological order taking the beginning of the school year and the code for each season (Fall - 1, Winter - 2, Spring - 3)
-    #e.g. Fall 2018-2019 -> 181, Winter 2021-2022 -> 212
-    sort_num = as.numeric(str_sub(year, 1, 2)) * 10 + match(season, c("Fall","Winter","Spring")) 
-  )
-#ordering our data chronologically
-general_data_table <- general_data_table |>
-  mutate(
-    label = fct_reorder(label, sort_num)
   )
 ```
 
-### Step 2: Redo label
+### Step 2: Redo labels
+
+Shortening and simplifying the label for each school year and trimester.
+Assigning a code for each label so it is easier to reorder
+chronologically: (Fall - 1, Winter - 2, Spring - 3) e.g. Fall 2018-2019
+-\> 181, Winter 2021-2022 -\> 212
 
 ``` r
 general_data_table <- general_data_table |>
@@ -93,8 +85,6 @@ general_data_table <- general_data_table |>
       str_detect(`Time Period`, "Spring") ~ "Spring"
     ),
     label = paste(season, year),
-    #sorting for chronological order taking the beginning of the school year and the code for each season (Fall - 1, Winter - 2, Spring - 3)
-    #e.g. Fall 2018-2019 -> 181, Winter 2021-2022 -> 212
     sort_num = as.numeric(str_sub(year, 1, 2)) * 10 + match(season,c("Fall","Winter","Spring")))
 ```
 
@@ -114,6 +104,7 @@ general_data_table <- general_data_table |>
 #### First General Data Attempt
 
 ``` r
+suppressWarnings(
 general_data_plot <- ggplot(general_data_table, aes(x = label, y = `% Meeting / Exceeding`, color = Age, group = Age)) +
   geom_line(size = 1.1) +
   geom_point(size = 2) +
@@ -131,15 +122,8 @@ general_data_plot <- ggplot(general_data_table, aes(x = label, y = `% Meeting / 
     strip.text = element_text(face = "bold"),
     panel.spacing = unit(1, "lines")
   )
-```
+)
 
-    ## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
-    ## ℹ Please use `linewidth` instead.
-    ## This warning is displayed once every 8 hours.
-    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-    ## generated.
-
-``` r
 general_data_plot
 ```
 
@@ -148,22 +132,19 @@ general_data_plot
 
 ![](memo_files/figure-gfm/first-general-graph-attempt-1.png)<!-- -->
 
-``` r
-#saving
-ggsave("general_plot.png", general_data_plot, width = 10, height = 20, dpi = 300)
-```
+#### Cleaning data for the Average Plot
 
-    ## Warning: Removed 2 rows containing missing values or values outside the scale range
-    ## (`geom_point()`).
+Creating a new column that would help us highlight the beginning of the
+school year.
 
 ``` r
-#creating a new column that would help us highlight the beginning of the school year
 average_general_data_table <- general_data_table |>
   mutate(is_fall = (`season` == "Fall"))
 ```
 
+Calculating the average of all age groups’ seasonal performance.
+
 ``` r
-#calculating the average of all age groups' seasonal performance
 average_general_data_table <- average_general_data_table |>
   group_by(Category, label, sort_num, is_fall) |>
   summarise(
@@ -224,10 +205,20 @@ ggsave("average_general_plot.png", average_general_data_plot, width = 15, height
 
 ### Plot 2: IEP
 
-Before startign work on IEP graph, we have crated another dataset using
-general_data_table. To create the IEP_data we first mutate datasets that
-has N/A as IPE, and then we have calculated the mean % Meeting /
-Exceeding for eahc trimester in every year.
+Before creating the IEP graph, we first built a cleaned dataset called
+IEP_data from general_data_table. We used mutate(IEP = na_if(IEP,
+“N/A”)) to turn “N/A” values in the IEP column into missing values, and
+then removed those rows with filter(!is.na(IEP)) so that only children
+with a recorded IEP status were kept.
+
+Next, we added a new variable is_fall that is TRUE when the
+trimester/season is “Fall” and FALSE otherwise; this lets us highlight
+fall points in the graph.
+
+Finally, we grouped the data by category, trimester label, sorting
+number, is_fall, and IEP status, and calculated the mean % Meeting /
+Exceeding in each group. We stored this as Avg IEP Meeting Exceeding,
+which is the summary measure used in the IEP graph.
 
 ``` r
 all_year <- general_data_table |>
@@ -297,7 +288,7 @@ iep_graph
     ## Warning: Removed 120 rows containing missing values or values outside the scale range
     ## (`geom_point()`).
 
-![](memo_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+![](memo_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 ``` r
 ggsave("iep_impact.png", iep_graph, width = 15, height = 10, dpi = 300)
@@ -311,4 +302,31 @@ ggsave("iep_impact.png", iep_graph, width = 15, height = 10, dpi = 300)
 Add more plot sections as needed. Each project should have at least 3
 plots, but talk to me if you have fewer than 3.
 
-### Plot 4: \_\_\_\_\_\_\_\_\_\_\_
+### Plot 4: Missing Data
+
+This plot is not included in our final hand-out, but we found it useful
+in our planning process. It served as a useful indicator of our
+limitations and it enabled us to adapt our visualizations based on the
+information provided.
+
+``` r
+suppressWarnings(gg_miss_var(general_data_table))
+```
+
+![](memo_files/figure-gfm/missing-data-plot-1-1.png)<!-- -->
+
+Thanks to this graph we can see that 99.1% of our data is complete,
+validating our findings even more.
+
+``` r
+suppressWarnings(vis_miss(general_data_table))+
+  theme(axis.text.x = element_text(vjust = 0))
+```
+
+![](memo_files/figure-gfm/missing-data-plot-2-1.png)<!-- -->
+
+``` r
+suppressWarnings(gg_miss_upset(general_data_table))
+```
+
+![](memo_files/figure-gfm/missing-data-plot-3-1.png)<!-- -->
