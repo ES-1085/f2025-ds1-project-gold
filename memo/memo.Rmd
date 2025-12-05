@@ -150,7 +150,8 @@ average_general_data_table <- average_general_data_table |>
 
 #### Final Plot 1
 
-```{r final-general-graph, fig.height = 10, fig.width = 12}
+```{r final-general-graph, fig.height = 10, fig.width = 12, fig.alt="A faceted line plot shows the percentage of students meeting or exceeding expectations from Spring 2018–19 to Spring 2024–25 across several categories. Fall data points are highlighted. The background includes shaded regions marking pre-COVID, during-COVID, and post-COVID periods, with two dotted vertical lines marking Fall 2020–21 and Fall 2021–22. The chart shows changes in performance over time within each category."}
+
 average_general_data_plot <- ggplot(average_general_data_table, aes(x = label, y = `Avg Meeting Exceeding`, group = Category)) +
   geom_line(size = 1) +
   geom_point(aes(size = ifelse(is_fall, 4, NA)), shape = 20, stroke = 0) +
@@ -214,7 +215,6 @@ IEP_data <- IEP_data |>
   )
 ```
 
-
 After creating the IEP dataset, we produced our first IEP graph using a line plot to show the trend of the two IEP statuses during and after the COVID-19 pandemic (our dataset did not include IEP data for the pre-COVID years). Similar to our previous graphs, we placed a point at each Fall semester to indicate the start of the school year.
 
 ```{r}
@@ -243,7 +243,6 @@ iep_graph <- ggplot(
 iep_graph
 
 ggsave("iep_impact.png", iep_graph, width = 15, height = 10, dpi = 300)
-```
 ```
 
 Later, to better visualize the difference between the two groups, we decided to use geom_area(). We also added a vertical line separating the during-COVID and post-COVID periods, with labels on both sides to highlight the transition and emphasize the pandemic’s impact in the following years. Finally, we adjusted the color scheme of the graph so that it aligns with the rest of the plots in our handout.

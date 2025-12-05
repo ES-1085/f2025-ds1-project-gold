@@ -190,7 +190,7 @@ average_general_data_plot
     ## Warning: Removed 72 rows containing missing values or values outside the scale range
     ## (`geom_point()`).
 
-![](memo_files/figure-gfm/final-general-graph-1.png)<!-- -->
+<img src="memo_files/figure-gfm/final-general-graph-1.png" alt="A faceted line plot shows the percentage of students meeting or exceeding expectations from Spring 2018–19 to Spring 2024–25 across several categories. Fall data points are highlighted. The background includes shaded regions marking pre-COVID, during-COVID, and post-COVID periods, with two dotted vertical lines marking Fall 2020–21 and Fall 2021–22. The chart shows changes in performance over time within each category."  />
 
 ``` r
 #saving
@@ -285,55 +285,59 @@ ggsave("iep_impact.png", iep_graph, width = 15, height = 10, dpi = 300)
     ## Warning: Removed 120 rows containing missing values or values outside the scale range
     ## (`geom_point()`).
 
+Later, to better visualize the difference between the two groups, we
+decided to use geom_area(). We also added a vertical line separating the
+during-COVID and post-COVID periods, with labels on both sides to
+highlight the transition and emphasize the pandemic’s impact in the
+following years. Finally, we adjusted the color scheme of the graph so
+that it aligns with the rest of the plots in our handout.
 
-    Later, to better visualize the difference between the two groups, we decided to use geom_area(). We also added a vertical line separating the during-COVID and post-COVID periods, with labels on both sides to highlight the transition and emphasize the pandemic’s impact in the following years. Finally, we adjusted the color scheme of the graph so that it aligns with the rest of the plots in our handout.
+``` r
+iep_graph <- ggplot(
+  IEP_data,
+  aes(x = `label`, y = `Avg IEP Meeting Exceeding`, fill = IEP, group = IEP)
+) +
+  geom_area(position = "identity", alpha = 0.4) +
+  geom_line(aes(color = IEP), size = 1) +
+  geom_point(aes(size = ifelse(is_fall, 4, NA)), shape = 21 , stroke = 0) +
+  geom_vline(xintercept = "Fall 21-22") +
+  geom_text( 
+    aes(x = "Spring 22-23", y = 110, label = "Post-COVID19"),
+    size = 1.5) +
+  geom_text( 
+    aes(x = "Winter 20-21", y = 110, label = "During-COVID19"),
+    size = 1.5) +
+  facet_wrap(~ Category) +
+  labs(
+    title = "Academic Performances by Different IEP status During and Post COVID-19",
+    x = "School Year (Season–Year)",
+    y = "% Meeting / Exceeding",
+    subtitle = "Grouped by Category ",
+    fill = "IEP Status",
+    color = "IEP Status"
+  ) +
+  scale_size_identity(guide = "none") +
+  scale_color_manual(
+    values = c(
+      "No" = "lightsalmon", 
+      "Yes" = "seagreen3"
+    ) 
+  ) +
+  scale_fill_manual(
+     values = c(
+      "No" = "lightsalmon", 
+      "Yes" = "seagreen3"
+    ) 
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1),
+    legend.position = "bottom",
+    strip.text = element_text(face = "bold")
+  )
 
-
-    ``` r
-    iep_graph <- ggplot(
-      IEP_data,
-      aes(x = `label`, y = `Avg IEP Meeting Exceeding`, fill = IEP, group = IEP)
-    ) +
-      geom_area(position = "identity", alpha = 0.4) +
-      geom_line(aes(color = IEP), size = 1) +
-      geom_point(aes(size = ifelse(is_fall, 4, NA)), shape = 21 , stroke = 0) +
-      geom_vline(xintercept = "Fall 21-22") +
-      geom_text( 
-        aes(x = "Spring 22-23", y = 110, label = "Post-COVID19"),
-        size = 1.5) +
-      geom_text( 
-        aes(x = "Winter 20-21", y = 110, label = "During-COVID19"),
-        size = 1.5) +
-      facet_wrap(~ Category) +
-      labs(
-        title = "Academic Performances by Different IEP status During and Post COVID-19",
-        x = "School Year (Season–Year)",
-        y = "% Meeting / Exceeding",
-        subtitle = "Grouped by Category ",
-        fill = "IEP Status",
-        color = "IEP Status"
-      ) +
-      scale_size_identity(guide = "none") +
-      scale_color_manual(
-        values = c(
-          "No" = "lightsalmon", 
-          "Yes" = "seagreen3"
-        ) 
-      ) +
-      scale_fill_manual(
-         values = c(
-          "No" = "lightsalmon", 
-          "Yes" = "seagreen3"
-        ) 
-      ) +
-      theme_minimal() +
-      theme(
-        axis.text.x = element_text(angle = 90, hjust = 1),
-        legend.position = "bottom",
-        strip.text = element_text(face = "bold")
-      )
-
-    iep_graph
+iep_graph
+```
 
     ## Warning: Removed 120 rows containing missing values or values outside the scale range
     ## (`geom_point()`).
