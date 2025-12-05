@@ -1,0 +1,110 @@
+---
+title: "README"
+author: "Gold Analysts - Mekkawy, Nissan, Razvan"
+output: github_document
+---
+
+# data
+
+Data file(s) placed in this folder.
+
+```{r reading-cleaned-data}
+library(readxl)
+library(dplyr)
+X2018_2019 <- read_excel("../data/ignore/2018-2019.xlsx")
+X2020_2021 <- read_excel("../data/ignore/2020-2021.xlsx")
+X2021_2022 <- read_excel("../data/ignore/2021-2022.xlsx")
+X2022_2023 <- read_excel("../data/ignore/2022-2023.xlsx")
+X2023_2024 <- read_excel("../data/ignore/2023-2024.xlsx")
+X2024_2025 <- read_excel("../data/ignore/2024-2025.xlsx")
+```
+
+## 2018-2019
+
+- `Category`: 6 categories analyzed: Social-Emotional, Physical, Language, Cognitive, Literacy, Mathematics
+- `# Children`: Total # of children assessed in each age group
+- `Age`: 5 age groups analyzed: 0-1, 1-2, 2-3, 3-4, 4-5
+- `IEP`: IEP status: N/A (0-1, 1-2, 2-3 and some 3-4, 4-5 depending on the year), Yes or No (most 3-4 and 4-5)
+- `# Meeting/Exceeding` : # of children meeting or exceeding expectations
+- `% Meeting/Exceeding` : % of children meeting or exceeding expectations
+- `Time Period` : trimester and year analyzed (Fall 2018-2019, Winter 2018-2019, Spring 2018-2019)
+
+```{r visualizing-data-1}
+ls(X2018_2019)
+glimpse(X2018_2019)
+```
+
+## 2020-2021
+
+- `Category`: 6 categories analyzed: Social-Emotional, Physical, Language, Cognitive, Literacy, Mathematics
+- `# Children`: Total # of children assessed in each age group
+- `Age`: 5 age groups analyzed: 0-1, 1-2, 2-3, 3-4, 4-5
+- `IEP`: IEP status: N/A (0-1, 1-2, 2-3 and some 3-4, 4-5 depending on the year), Yes or No (most 3-4 and 4-5)
+- `# Meeting/Exceeding` : # of children meeting or exceeding expectations
+- `% Meeting/Exceeding` : % of children meeting or exceeding expectations
+- `Time Period` : trimester and year analyzed (Fall 2020-2021, Winter 2020-2021, Spring 2020-2021)
+
+```{r visualizing-data-2}
+ls(X2020_2021)
+glimpse(X2020_2021)
+```
+
+## 2021-2022
+
+- `Category`: 6 categories analyzed: Social-Emotional, Physical, Language, Cognitive, Literacy, Mathematics
+- `# Children`: Total # of children assessed in each age group
+- `Age`: 5 age groups analyzed: 0-1, 1-2, 2-3, 3-4, 4-5
+- `IEP`: IEP status: N/A (0-1, 1-2, 2-3 and some 3-4, 4-5 depending on the year), Yes or No (most 3-4 and 4-5)
+- `# Meeting/Exceeding` : # of children meeting or exceeding expectations
+- `% Meeting/Exceeding` : % of children meeting or exceeding expectations
+- `Time Period` : trimester and year analyzed (Fall 2021-2022, Winter 2021-2022, Spring 2021-2022)
+
+```{r visualizing-data-3}
+ls(X2021_2022)
+glimpse(X2021_2022)
+```
+
+## 2022-2023
+
+- `Category`: 6 categories analyzed: Social-Emotional, Physical, Language, Cognitive, Literacy, Mathematics
+- `# Children`: Total # of children assessed in each age group
+- `Age`: 5 age groups analyzed: 0-1, 1-2, 2-3, 3-4, 4-5
+- `IEP`: IEP status: N/A (0-1, 1-2, 2-3 and some 3-4, 4-5 depending on the year), Yes or No (most 3-4 and 4-5)
+- `# Meeting/Exceeding` : # of children meeting or exceeding expectations
+- `% Meeting/Exceeding` : % of children meeting or exceeding expectations
+- `Time Period` : trimester and year analyzed (Fall 2022-2023, Winter 2022-2023, Spring 2022-2023)
+
+```{r visualizing-data-4}
+ls(X2022_2023)
+glimpse(X2022_2023)
+```
+
+## 2023-2024
+
+- `Category`: 6 categories analyzed: Social-Emotional, Physical, Language, Cognitive, Literacy, Mathematics
+- `# Children`: Total # of children assessed in each age group
+- `Age`: 5 age groups analyzed: 0-1, 1-2, 2-3, 3-4, 4-5
+- `IEP`: IEP status: N/A (0-1, 1-2, 2-3 and some 3-4, 4-5 depending on the year), Yes or No (most 3-4 and 4-5)
+- `# Meeting/Exceeding` : # of children meeting or exceeding expectations
+- `% Meeting/Exceeding` : % of children meeting or exceeding expectations
+- `Time Period` : trimester and year analyzed (Fall 2023-2024, Winter 2023-2024, Spring 2023-2024)
+
+```{r visualizing-data-5}
+ls(X2023_2024)
+glimpse(X2023_2024)
+```
+
+## 2024-2025
+
+- `Category`: 6 categories analyzed: Social-Emotional, Physical, Language, Cognitive, Literacy, Mathematics
+- `# Children`: Total # of children assessed in each age group
+- `Age`: 5 age groups analyzed: 0-1, 1-2, 2-3, 3-4, 4-5
+- `IEP`: IEP status: N/A (0-1, 1-2, 2-3 and some 3-4, 4-5 depending on the year), Yes or No (most 3-4 and 4-5)
+- `# Meeting/Exceeding` : # of children meeting or exceeding expectations
+- `% Meeting/Exceeding` : % of children meeting or exceeding expectations
+- `Time Period` : trimester and year analyzed (Fall 2024-2025, Winter 2024-2025, Spring 2024-2025)
+
+```{r visualizing-data-6}
+ls(X2024_2025)
+glimpse(X2024_2025)
+```
