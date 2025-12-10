@@ -102,4 +102,4 @@ ggplot(categorized_data_2018_2019, aes(x = `Time Period`, y = `% percentage`)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-Thanks to this graph, we can see how successful Promise Early Education was in categories like `Physical`. Moreover, we can see the growth of the students from the beggining (Fall) to the end of the school year (Winter and Sping), especially in categories like `Cognitive` and `Social-Emotional` where the percentage grew from around 50% to over 80%. 
+Thanks to this graph, we can see how successful Promise Early Education was in categories like `Physical`. Moreover, we can see the growth of the students from the beginning (Fall) to the end of the school year (Winter and Sping), especially in categories like `Cognitive` and `Social-Emotional` where the percentage grew from around 50% to over 80%. 
