@@ -84,7 +84,7 @@ general_data_table <- general_data_table |>
       str_detect(`Time Period`, "Spring") ~ "Spring"
     ),
     label = paste(season, year),
-    sort_num = as.numeric(str_sub(year, 1, 2)) * 10 + match(season,c("Fall","Winter","Spring")))
+    sort_num = as.numeric(str_sub(year, 1, 2)) * 10 + match(season,c("Fall", "Winter", "Spring")))
 ```
 
 
@@ -151,7 +151,7 @@ average_general_data_table <- average_general_data_table |>
 
 #### Final Plot 1
 
-```{r final-general-graph, fig.height = 10, fig.width = 12, fig.alt="A faceted line plot shows the percentage of students meeting or exceeding expectations from Spring 2018–19 to Spring 2024–25 across several categories. Fall data points are highlighted. The background includes shaded regions marking pre-COVID, during-COVID, and post-COVID periods, with two dotted vertical lines marking Fall 2020–21 and Fall 2021–22. The chart shows changes in performance over time within each category."}
+```{r final-general-graph, fig.height = 10, fig.width = 12, fig.alt="A faceted line plot shows the percentage of students meeting or exceeding expectations from Spring 2018–19 to Spring 2024–25 across several categories. Fall data points are highlighted. The background includes shaded regions marking pre-COVID, during-COVID, and post-COVID periods, with two dotted vertical lines marking Fall 2020–21 and Fall 2021–22. The chart shows changes in performance over time within each category and highlights that after the COVID-19 pandemic, fewer children tend to perform well when compared with the previous years."}
 
 average_general_data_plot <- ggplot(average_general_data_table, aes(x = label, y = `Avg Meeting Exceeding`, group = Category)) +
   geom_line(size = 1) +
@@ -206,7 +206,7 @@ all_year <- general_data_table |>
   filter(!is.na(IEP))
 
 IEP_data <- all_year |>
-  mutate(is_fall = (`season` == "Fall"))
+  mutate(is_fall = `season` == "Fall")
 
 IEP_data <- IEP_data |>
   group_by(Category, label, sort_num, is_fall, IEP) |>
@@ -255,7 +255,7 @@ iep_graph <- ggplot(
 ) +
   geom_area(position = "identity", alpha = 0.4) +
   geom_line(aes(color = IEP), size = 1) +
-  geom_point(aes(size = ifelse(is_fall, 4, NA)), shape = 21 , stroke = 0) +
+  geom_point(aes(size = ifelse(is_fall, 4, NA)), shape = 21, stroke = 0) +
   geom_vline(xintercept = "Fall 21-22") +
   geom_text( 
     aes(x = "Spring 22-23", y = 110, label = "Post-COVID19"),
@@ -325,7 +325,7 @@ In the last part we create the visual chart. We draw lines showing how each age 
 
 #### Final Age grouped graph
 
-```{r age-final-plot, fig.width = 14, fig.height = 8, fig.alt = "This faceted line chart tracks the percentage of children meeting learning goals across six specific developmental categories: Cognitive, Language, Literacy, Mathematics, Physical, and Social-Emotional. The data covers the 2018–2019 to 2024–2025 school years and organizes time by season: Fall (F), Winter (W) and Spring (S) to highlight progress throughout each year. Each colored line represents a different age group:  Blue is 2–3 years, Pink is 3–4 years and Yellow is 4–5 years. The purpose of this chart is to visualize how the COVID-19 pandemic disrupted learning in these specific areas and to track how children's development has recovered over time."}
+```{r age-final-plot, fig.width = 14, fig.height = 8, fig.alt = "This faceted line chart tracks the percentage of children meeting learning goals across six specific developmental categories: Cognitive, Language, Literacy, Mathematics, Physical, and Social-Emotional. The data covers the 2018–2019 to 2024–2025 school years and organizes time by season: Fall (F), Winter (W), and Spring (S) to highlight progress throughout each year. Each colored line represents a different age group: Blue is 2–3 years, Pink is 3–4 years, and Yellow is 4–5 years. The purpose of this chart is to visualize how the COVID-19 pandemic disrupted learning. It highlights that during the pandemic, performance became notably unstable, with the youngest group (ages 2–3) often maintaining higher scores while the older groups (3–5 years) struggled to maintain consistency."}
 # I will make the plot and save it to covid_plot variable
 covid_plot <- ggplot(data, aes(reorder(label, sort_num), `% Meeting / Exceeding`, color = Age, group = Age)) +
 # Add green background highlight for COVID period (Fall 2019 to Spring 2020)
@@ -336,7 +336,7 @@ geom_vline(xintercept = 3.5, color = "#51C168", linetype = "dashed", size = 1) +
 geom_line(size = 1.5, alpha = 0.8) +
 geom_point(data = data |> group_by(Category, Age, year) |> filter(sort_num == min(sort_num)), 
     size = 2.5, alpha = 0.9) +
-facet_wrap(~Category) +
+facet_wrap( ~ Category) +
 scale_color_manual(values = c("#51C168", "#5C57D8", "#FABA09")) +
 ylim(0, 100) +
 labs(title = "COVID-19 Impact on Age Groups", 
