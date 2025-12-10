@@ -355,7 +355,7 @@ display: none;
 <div id="promise-early-education-tracking-covid-19-impact-across-age-and-iep-statuesproject-title" class="section level1">
 <h1>Promise Early Education: Tracking COVID-19 Impact Across Age and IEP
 StatuesProject title</h1>
-<p>by Gold Analyst (Mekkawy Mohamed, Razva Negru, Nisan Ozmert)</p>
+<p>by Gold Analyst (Mekkawy Mohamed, Razvan Negru, Nisan Ozmert)</p>
 <div id="summary" class="section level2">
 <h2>Summary</h2>
 <p>Promise Early Education is a learning program in Central Maine
@@ -365,13 +365,15 @@ GOLD® Assessment data, which is collected through teachers’ observations
 during everyday classroom activities. Teachers gather documentation
 (notes, photos, work samples, etc.), match it to developmental
 progressions, and assign ratings throughout the year. Ratings are
-finalized at the fall, winter, and spring checkpoints/trimesters. The
-activities are divided into six developmental categories, measuring how
-many children meet, exceed, or fall below expectations at each
-checkpoint. We used data from the 2018–2019 to 2024–2025 school years to
-understand the impact of the COVID-19 pandemic on student performance,
-focusing specifically on differences by IEP status and age group. In
-total, the dataset includes 702 observations across 11 variables.</p>
+finalized at the fall, winter, and spring checkpoints/trimesters.</p>
+<p>The activities are divided into six developmental categories,
+measuring how many children meet, exceed, or fall below expectations at
+each checkpoint. We used data from the 2018–2019 to 2024–2025 school
+years to understand the impact of the COVID-19 pandemic on student
+performance, focusing specifically on differences by IEP status and age
+group.</p>
+<p>In total, the dataset includes 702 observations across 11
+variables.</p>
 </div>
 <div id="analysis" class="section level2">
 <h2>Analysis</h2>
@@ -384,46 +386,49 @@ and relabeling the time period: year, season, label, and sort_number. We
 used the year 2018–2019 as pre-COVID, 2020–2021 as during the COVID-19
 pandemic, and the school years up to 2024–2025 as post-COVID-19 years.
 We decided to use %Meeting/Exceeding (of children) as an indicator of
-their average success over the school year. Once we had clean data, we
-first explored the overall impact of COVID without dividing students
-into different groups, using a line graph across the school years. We
-observed that after the COVID-19 pandemic, fewer children tended to
-perform well in the first trimester compared with the previous years in
-all categories. The growth over the school year also seemed to become
-more linear during the post-COVID-19 years, compared to a more steep
-linear increase in the pre- and during-COVID-19 years. Later, we decided
-to concentrate on the impact of the COVID-19 pandemic by using a line
-graph faceted by category, with different lines representing different
-age groups. We observed almost no change in the earlier age groups,
-which could be explained by smaller classroom sizes in Promise Early
-Education for those age groups compared to the 3–5 age groups, or
-because some of those children were not yet born during the COVID-19
-pandemic. Therefore, in our line graph we excluded those groups and
-concentrated only on the age groups 2–3, 3–4, and 4–5. Similar to the
-0–2 year olds, we saw almost no change in the 2–3 year olds except in
-the Language category during and early post-COVID-19 years; however,
+their average success over the school year.</p>
+<p>Once we had clean data, we first explored the overall impact of COVID
+without dividing students into different groups, using a line graph
+across the school years. We observed that after the COVID-19 pandemic,
+fewer children tended to perform well in the first trimester compared
+with the previous years in all categories. The growth over the school
+year also seemed to become more linear during the post-COVID-19 years,
+compared to a more steep linear increase in the pre- and during-COVID-19
+years.</p>
+<p>Later, we decided to concentrate on the impact of the COVID-19
+pandemic by using a line graph faceted by category, with different lines
+representing different age groups. We observed almost no change in the
+earlier age groups, which could be explained by smaller classroom sizes
+in Promise Early Education for those age groups compared to the 3–5 age
+groups, or because some of those children were not yet born during the
+COVID-19 pandemic. Therefore, in our line graph we excluded those groups
+and concentrated only on the age groups 2–3, 3–4, and 4–5. Similar to
+the 0–2 year olds, we saw almost no change in the 2–3 year olds except
+in the Language category during and early post-COVID-19 years; however,
 they seemed to recover by the end of the fourth post-COVID-19 year
-(2024–2025). When we looked at the 4–5 age group, we interestingly saw
-worse performance before COVID-19 but a gradual decrease in the
-post-COVID-19 years, especially in the Social-Emotional and Language
-categories. The trend in Social-Emotional outcomes has also been
-observed in other research. Finally, the age group 3–4 seemed to be the
-most impacted by COVID-19, as they showed a gradual decrease in
-%Meeting/Exceeding during the post-COVID-19 years similar to the 4–5
-group, but in all categories except Physical. For the IEP graph, we
-created an area plot and observed the gap between the % of children with
-IEP status who met or exceeded expectations and the % of children
-without IEP status who met or exceeded expectations. Our dataset did not
-include any data from pre-COVID-19, so we specifically focused on during
-and after the pandemic. Our first observation was that children with IEP
-status had a slightly lower %Meeting/Exceeding compared to students
-without IEP status during the pandemic, especially in the Cognitive,
-Mathematics, Literacy, and Physical categories. However, the gap between
-students with IEPs and those without IEPs increased during the
-post-COVID-19 years, with the largest declines for students with IEP
-status occurring in Language, Cognitive, and Mathematics. Even four
-years after the height of the pandemic, the performance gap between IEP
-and non-IEP students remains larger than it was during COVID-19.</p>
+(2024–2025).</p>
+<p>When we looked at the 4–5 age group, we interestingly saw worse
+performance before COVID-19 but a gradual decrease in the post-COVID-19
+years, especially in the Social-Emotional and Language categories. The
+trend in Social-Emotional outcomes has also been observed in other
+research. Finally, the age group 3–4 seemed to be the most impacted by
+COVID-19, as they showed a gradual decrease in %Meeting/Exceeding during
+the post-COVID-19 years similar to the 4–5 group, but in all categories
+except Physical.</p>
+<p>For the IEP graph, we created an area plot and observed the gap
+between the % of children with IEP status who met or exceeded
+expectations and the % of children without IEP status who met or
+exceeded expectations. Our dataset did not include any data from
+pre-COVID-19, so we specifically focused on during and after the
+pandemic. Our first observation was that children with IEP status had a
+slightly lower %Meeting/Exceeding compared to students without IEP
+status during the pandemic, especially in the Cognitive, Mathematics,
+Literacy, and Physical categories. However, the gap between students
+with IEPs and those without IEPs increased during the post-COVID-19
+years, with the largest declines for students with IEP status occurring
+in Language, Cognitive, and Mathematics. Even four years after the
+height of the pandemic, the performance gap between IEP and non-IEP
+students remains larger than it was during COVID-19.</p>
 </div>
 <div id="conclusion" class="section level2">
 <h2>Conclusion</h2>
@@ -460,7 +465,7 @@ vary across age groups and categories.</p>
 <div id="memo" class="section level2">
 <h2>Memo</h2>
 <p>A link to the code and how we created our graphics in our memo can be
-found <a href="memo/memo.html">here</a>.</p>
+found <a href="memo/memo.md">here</a>.</p>
 </div>
 <div id="data" class="section level2">
 <h2>Data</h2>
